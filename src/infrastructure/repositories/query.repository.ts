@@ -110,9 +110,9 @@ export class QueryRepository {
     if (searchQuery.length > 0) filter = { $or: searchQuery };
     const totalCount = await this.UserModel.countDocuments(filter);
     const result = await this.UserModel.find(filter)
-      .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ [`accountData.${sortBy}`]: sortDirection });
     const items: UserViewModel[] = result.map((b) => b.getViewModel());
     return {
       pagesCount: pagesCount(totalCount, pageSize),

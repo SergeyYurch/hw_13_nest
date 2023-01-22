@@ -29,6 +29,7 @@ export class UsersController {
     @Query() query,
   ) {
     const paginatorParams = castQueryParams(query);
+    console.log(paginatorParams);
     return await this.queryRepository.findUsers(
       paginatorParams,
       searchLoginTerm,
