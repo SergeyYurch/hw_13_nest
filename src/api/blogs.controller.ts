@@ -54,7 +54,9 @@ export class BlogsController {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
-    return await this.queryRepository.findPosts(query, blogId);
+    const paginatorParams = castQueryParams(query);
+    console.log(paginatorParams);
+    return await this.queryRepository.findPosts(paginatorParams, blogId);
   }
 
   @Post(':blogId/posts')

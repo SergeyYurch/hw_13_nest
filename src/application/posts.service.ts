@@ -19,6 +19,7 @@ export class PostsService {
     const createdPost = new this.PostModel(postDto);
     const blogInDb = await this.BlogModel.findById(postDto.blogId);
     createdPost.blogName = blogInDb.name;
+    createdPost.createdAt = new Date();
     const result = await this.postRepository.save(createdPost);
     if (!postDto) return null;
     return result.getViewModel();

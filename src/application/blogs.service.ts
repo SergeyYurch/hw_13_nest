@@ -15,6 +15,7 @@ export class BlogsService {
 
   async createNewBlog(blog: BlogInputModel): Promise<BlogViewModel> {
     const createdBlog = new this.BlogModel(blog);
+    createdBlog.createdAt = new Date();
     const newBlog = await this.blogRepository.save(createdBlog);
     return newBlog.getViewModel();
   }
