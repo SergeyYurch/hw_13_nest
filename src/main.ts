@@ -7,5 +7,4 @@ async function bootstrap() {
   const port = process.env.PORT || 5000;
   await app.listen(port);
 }
-//ss
 bootstrap();
