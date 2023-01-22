@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { BlogViewModel } from '../../infrastructure/viewModels/blogViewModel';
-import { BlogInputModelDto } from '../../application/inputModels/blogInputModel.dto';
+import { BlogInputModel } from '../../application/inputModels/blogInputModel';
 
 @Schema()
 export class Blog {
@@ -29,7 +29,7 @@ export class Blog {
     };
   }
 
-  changesApply(changes: BlogInputModelDto) {
+  changesApply(changes: BlogInputModel) {
     for (const key in changes) {
       this[key] = changes[key];
     }
