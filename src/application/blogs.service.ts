@@ -2,7 +2,7 @@ import { Model, Types } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from '../domain/schemas/blog.schema';
-import { BlogInputModelDto } from './inputModels/blogInputModel.dto';
+import { BlogInputModel } from './inputModels/blogInputModel';
 import { BlogViewModel } from '../infrastructure/viewModels/blogViewModel';
 import { BlogsRepository } from '../infrastructure/repositories/blogs.repository';
 
@@ -13,13 +13,13 @@ export class BlogsService {
     private blogRepository: BlogsRepository,
   ) {}
 
-  async createNewBlog(blog: BlogInputModelDto): Promise<BlogViewModel> {
+  async createNewBlog(blog: BlogInputModel): Promise<BlogViewModel> {
     const createdBlog = new this.BlogModel(blog);
     const newBlog = await this.blogRepository.save(createdBlog);
     return newBlog.getViewModel();
   }
 
-  async editBlog(blogId: string, changes: BlogInputModelDto): Promise<boolean> {
+  async editBlog(blogId: string, changes: BlogInputModel): Promise<boolean> {
     const editBlog = await this.BlogModel.findById(blogId);
     editBlog.changesApply(changes);
     return !!(await this.blogRepository.save(editBlog));
