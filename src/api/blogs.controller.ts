@@ -12,15 +12,15 @@ import {
   Query,
 } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
-import { BlogInputModelDto } from '../application/inputModels/blogInputModel.dto';
+import { BlogInputModel } from '../application/inputModels/blogInputModel';
 import { castQueryParams } from '../infrastructure/helpers/helpers';
 import { QueryRepository } from '../infrastructure/repositories/query.repository';
 import { PaginatorInputType } from '../application/inputModels/paginatorInputType';
 import { PostViewModel } from '../infrastructure/viewModels/postViewModel';
 import { PaginatorView } from '../infrastructure/viewModels/paginatorView';
-import { BlogPostInputModelDto } from '../application/inputModels/blogPostInputModel.dto';
+import { BlogPostInputModel } from '../application/inputModels/blogPostInputModel';
 import { PostsService } from '../application/posts.service';
-import { PostInputModelDto } from '../application/inputModels/postInputModel.dto';
+import { PostInputModel } from '../application/inputModels/postInputModel';
 
 @Controller('blogs')
 export class BlogsController {
@@ -42,7 +42,7 @@ export class BlogsController {
   }
 
   @Post()
-  async createBlog(@Body() blog: BlogInputModelDto) {
+  async createBlog(@Body() blog: BlogInputModel) {
     return await this.blogsService.createNewBlog(blog);
   }
 
@@ -60,12 +60,12 @@ export class BlogsController {
   @Post(':blogId/posts')
   async createPostForBlog(
     @Param('blogId') blogId: string,
-    @Body() blogPostDto: BlogPostInputModelDto,
+    @Body() blogPostDto: BlogPostInputModel,
   ): Promise<PostViewModel> {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
-    const createdPost: PostInputModelDto = {
+    const createdPost: PostInputModel = {
       title: blogPostDto.title,
       shortDescription: blogPostDto.shortDescription,
       content: blogPostDto.content,
@@ -87,7 +87,7 @@ export class BlogsController {
   @HttpCode(204)
   async editBlog(
     @Param('blogId') blogId: string,
-    @Body() changes: BlogInputModelDto,
+    @Body() changes: BlogInputModel,
   ) {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
