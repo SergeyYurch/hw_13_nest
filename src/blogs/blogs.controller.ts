@@ -10,17 +10,20 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../application/blogs.service';
-import { BlogInputModel } from '../application/inputModels/blogInputModel';
+import { BlogsService } from './blogs.service';
+import { BlogInputModel } from './dto/blogInputModel';
 import { castQueryParams } from '../infrastructure/helpers/helpers';
-import { QueryRepository } from '../infrastructure/repositories/query.repository';
-import { PaginatorInputType } from '../application/inputModels/paginatorInputType';
-import { PostViewModel } from '../infrastructure/viewModels/postViewModel';
-import { PaginatorView } from '../infrastructure/viewModels/paginatorView';
-import { BlogPostInputModel } from '../application/inputModels/blogPostInputModel';
-import { PostsService } from '../application/posts.service';
-import { PostInputModel } from '../application/inputModels/postInputModel';
+import { QueryRepository } from '../query/query.repository';
+import { PaginatorInputType } from '../api/inputModels/paginatorInputType';
+import { PostViewModel } from '../query/viewModels/postViewModel';
+import { PaginatorView } from '../query/viewModels/paginatorView';
+import { BlogPostInputModel } from './dto/blogPostInputModel';
+import { PostsService } from '../posts/posts.service';
+import { PostInputModel } from '../posts/dto/postInputModel';
+import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('blogs')
 export class BlogsController {
@@ -41,6 +44,7 @@ export class BlogsController {
     );
   }
 
+  @UseGuards(AuthGuard('basic'))
   @Post()
   async createBlog(@Body() blog: BlogInputModel) {
     return await this.blogsService.createNewBlog(blog);
@@ -48,20 +52,20 @@ export class BlogsController {
 
   @Get(':blogId/posts')
   async getPostsForBlog(
-    @Param('blogId') blogId: string,
+    @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Query() query: PaginatorInputType,
   ): Promise<PaginatorView<PostViewModel>> {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
     const paginatorParams = castQueryParams(query);
-    console.log(paginatorParams);
     return await this.queryRepository.findPosts(paginatorParams, blogId);
   }
 
+  @UseGuards(AuthGuard('basic'))
   @Post(':blogId/posts')
   async createPostForBlog(
-    @Param('blogId') blogId: string,
+    @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Body() blogPostDto: BlogPostInputModel,
   ): Promise<PostViewModel> {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
@@ -77,7 +81,7 @@ export class BlogsController {
   }
 
   @Get(':blogId')
-  async getBlog(@Param('blogId') blogId: string) {
+  async getBlog(@Param('blogId', ValidateObjectIdTypePipe) blogId: string) {
     const blog = await this.queryRepository.getBlogById(blogId);
     if (!blog) {
       throw new NotFoundException('Invalid blogId');
@@ -85,6 +89,7 @@ export class BlogsController {
     return blog;
   }
 
+  @UseGuards(AuthGuard('basic'))
   @Put(':blogId')
   @HttpCode(204)
   async editBlog(
@@ -97,9 +102,10 @@ export class BlogsController {
     return await this.blogsService.editBlog(blogId, changes);
   }
 
+  @UseGuards(AuthGuard('basic'))
   @Delete(':blogId')
   @HttpCode(204)
-  async deleteBlog(@Param('blogId') blogId: string) {
+  async deleteBlog(@Param('blogId', ValidateObjectIdTypePipe) blogId: string) {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
