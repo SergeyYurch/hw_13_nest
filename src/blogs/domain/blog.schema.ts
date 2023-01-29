@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { BlogViewModel } from '../../infrastructure/viewModels/blogViewModel';
-import { BlogInputModel } from '../../application/inputModels/blogInputModel';
+import { BlogInputModel } from '../dto/blogInputModel';
 
 @Schema()
 export class Blog {
@@ -19,17 +18,14 @@ export class Blog {
   @Prop({ default: new Date() })
   createdAt: Date;
 
-  getViewModel(): BlogViewModel {
-    return {
-      id: this._id.toString(),
-      name: this.name,
-      description: this.description,
-      websiteUrl: this.websiteUrl,
-      createdAt: this.createdAt.toISOString(),
-    };
+  constructor(inputDate: BlogInputModel) {
+    this.name = inputDate.name;
+    this.websiteUrl = inputDate.websiteUrl;
+    this.description = inputDate.description;
+    this.createdAt = new Date();
   }
 
-  changesApply(changes: BlogInputModel) {
+  blogUpdate(changes: BlogInputModel) {
     for (const key in changes) {
       this[key] = changes[key];
     }
@@ -37,8 +33,7 @@ export class Blog {
 }
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 BlogSchema.methods = {
-  getViewModel: Blog.prototype.getViewModel,
-  changesApply: Blog.prototype.changesApply,
+  blogUpdate: Blog.prototype.blogUpdate,
 };
 
 export type BlogDocument = HydratedDocument<Blog>;
