@@ -1,70 +1,83 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+//
+import { ConfigModule, ConfigService } from '@nestjs/config';
+const configModule = ConfigModule.forRoot();
+//
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
-import { Blog, BlogSchema } from './domain/schemas/blog.schema';
-import { BlogsController } from './api/blogs.controller';
-import { BlogsService } from './application/blogs.service';
-import { BlogsRepository } from './infrastructure/repositories/blogs.repository';
-import { QueryRepository } from './infrastructure/repositories/query.repository';
-import { CheckIdMiddleware } from './infrastructure/middlewares/check-id.middleware';
-import { PostsService } from './application/posts.service';
-import { PostsRepository } from './infrastructure/repositories/posts.repository';
-import { PostsController } from './api/posts.controller';
-import { Post, PostSchema } from './domain/schemas/post.schema';
-import { TestingController } from './api/testing.controller';
-import { TestingService } from './application/testing.service';
-import { UsersService } from './application/users.service';
-import { UsersRepository } from './infrastructure/repositories/users.repository';
-import { UsersController } from './api/users.controller';
-import { User, UserSchema } from './domain/schemas/user.schema';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { BlogsModule } from './blogs/blogs.module';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
+import { SecurityDevicesModule } from './security-devices/security-devices.module';
+import { QueryModule } from './query/query.module';
+import { getMongoConfig } from './configs/mongo.config';
+import { TestingModule } from './testing/testing.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CheckUserIdMiddleware } from './infrastructure/middlewares/check-user-id-middleware.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(
-      process.env.MONGO_URI +
-        '/' +
-        process.env.DB_NAME +
-        '?retryWrites=true&w=majority',
-    ),
-    MongooseModule.forFeature([
-      { name: Blog.name, schema: BlogSchema },
-      { name: Post.name, schema: PostSchema },
-      { name: User.name, schema: UserSchema },
-    ]),
-  ],
-  controllers: [
-    BlogsController,
-    PostsController,
-    TestingController,
-    UsersController,
+    configModule,
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: getMongoConfig,
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 10,
+      limit: 5,
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          ignoreTLS: true,
+          secure: true,
+          auth: {
+            user: config.get('SMTP_USER'),
+            pass: config.get('SMTP_PASS'),
+          },
+          tls: { rejectUnauthorized: false },
+        },
+        defaults: {
+          from: '"nest-modules" <modules@nestjs.com>',
+        },
+        template: {
+          dir: __dirname + '/templates',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
+    AuthModule,
+    UsersModule,
+    BlogsModule,
+    PostsModule,
+    CommentsModule,
+    SecurityDevicesModule,
+    QueryModule,
+    TestingModule,
   ],
   providers: [
-    BlogsService,
-    BlogsRepository,
-    QueryRepository,
-    PostsService,
-    PostsRepository,
-    TestingService,
-    UsersService,
-    UsersRepository,
+    JwtService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(CheckIdMiddleware)
-      .forRoutes('blogs/:id')
-      .apply(CheckIdMiddleware)
-      .forRoutes('posts/:id')
-      .apply(CheckIdMiddleware)
-      .forRoutes('users/:id')
-      .apply(CheckIdMiddleware)
-      .forRoutes('blogs/:id/posts');
+    consumer.apply(CheckUserIdMiddleware).forRoutes('posts');
   }
 }
