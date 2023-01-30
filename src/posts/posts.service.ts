@@ -1,11 +1,13 @@
-import { PostViewModel } from '../infrastructure/viewModels/postViewModel';
-import { PostInputModel } from './inputModels/postInputModel';
+import { PostViewModel } from '../query/viewModels/postViewModel';
+import { PostInputModel } from './dto/postInputModel';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from '../domain/schemas/post.schema';
+import { Post, PostDocument } from './domain/post.schema';
 import { Model, Types } from 'mongoose';
-import { PostsRepository } from '../infrastructure/repositories/posts.repository';
-import { Blog, BlogDocument } from '../domain/schemas/blog.schema';
+import { PostsRepository } from './posts.repository';
+import { Blog, BlogDocument } from '../blogs/domain/blog.schema';
+import { QueryRepository } from '../query/query.repository';
+import { LikeStatusType } from '../api/inputModels/likeInputModel';
 
 @Injectable()
 export class PostsService {
@@ -13,6 +15,7 @@ export class PostsService {
     @InjectModel(Post.name) private PostModel: Model<PostDocument>,
     @InjectModel(Blog.name) private BlogModel: Model<BlogDocument>,
     private postRepository: PostsRepository,
+    private queryRepository: QueryRepository,
   ) {}
 
   async createNewPost(postDto: PostInputModel): Promise<PostViewModel | null> {
@@ -22,7 +25,7 @@ export class PostsService {
     createdPost.createdAt = new Date();
     const result = await this.postRepository.save(createdPost);
     if (!postDto) return null;
-    return result.getViewModel();
+    return this.queryRepository.getPostViewModel(result);
   }
 
   async editPostById(
@@ -43,5 +46,16 @@ export class PostsService {
       _id: new Types.ObjectId(postId),
     });
     return result.deletedCount === 1;
+  }
+
+  async updatePostLikeStatus(
+    postId: string,
+    userId: string,
+    likeStatus: LikeStatusType,
+  ) {
+    const post = await this.PostModel.findById(postId);
+    const { login } = await this.queryRepository.getUserById(userId);
+    post.updateLikeStatus(userId, login, likeStatus);
+    await this.postRepository.save(post);
   }
 }
