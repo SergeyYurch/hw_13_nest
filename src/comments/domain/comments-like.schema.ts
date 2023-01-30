@@ -6,9 +6,6 @@ export class CommentsLike {
   @Prop({ required: true })
   userId: string;
 
-  @Prop()
-  login: string;
-
   @Prop({ required: false })
   userBan: boolean;
 
@@ -17,5 +14,8 @@ export class CommentsLike {
 
   @Prop({ required: true, default: new Date() })
   addedAt: Date;
+
+  @Prop({ required: true })
+  updatedAt: Date;
 }
 export const CommentsLikeSchema = SchemaFactory.createForClass(CommentsLike);
