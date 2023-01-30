@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { CommentsLike, CommentsLikeSchema } from './comments-like.schema';
+import { LikeStatusType } from '../../api/inputModels/likeInputModel';
 
 @Schema()
 export class Comment {
@@ -35,10 +36,36 @@ export class Comment {
     this.createdAt = new Date();
     this.updatedAt = new Date();
   }
+
+  updateContent(content: string) {
+    this.content = content;
+    this.updatedAt = new Date();
+  }
+
+  updateLikeStatus(userId: string, likeStatus: LikeStatusType) {
+    const existingLikeItem = this.likes.find((l) => l.userId === userId);
+    if (!existingLikeItem) {
+      this.likes.push({
+        userId,
+        likeStatus,
+        addedAt: new Date(),
+        updatedAt: new Date(),
+        userBan: false,
+      });
+      return;
+    }
+    existingLikeItem.likeStatus = likeStatus;
+    existingLikeItem.updatedAt = new Date();
+    this.likes = this.likes.map((l) =>
+      l.userId === userId ? existingLikeItem : l,
+    );
+  }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 CommentSchema.methods = {
   initial: Comment.prototype.initial,
+  updateContent: Comment.prototype.updateContent,
+  updateLikeStatus: Comment.prototype.updateLikeStatus,
 };
 export type CommentDocument = HydratedDocument<Comment>;
