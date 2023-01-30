@@ -1,3 +1,5 @@
+import { JwtPayloadType } from '../auth/types/jwt-payload.type';
+
 declare global {
   declare namespace Express {
     export interface User {
@@ -5,6 +7,9 @@ declare global {
       deviceId: string;
       iat: number;
       exp: number;
+    }
+    export interface Request {
+      jwtPayload: JwtPayloadType;
     }
   }
 }
