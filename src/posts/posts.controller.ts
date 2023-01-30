@@ -43,10 +43,11 @@ export class PostsController {
     @Body() likeDto: LikeInputModel,
     @Req() req: Request,
   ) {
-    const { userId } = req.user;
+    const userId = req.user.userId;
     if (!(await this.queryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
+
     await this.postsService.updatePostLikeStatus(
       postId,
       userId,
@@ -66,7 +67,7 @@ export class PostsController {
       throw new NotFoundException('Invalid postID');
     }
     const paginatorParams = castQueryParams(query);
-    const { userId } = req.user;
+    const userId = req.user?.userId;
     return this.queryRepository.getCommentsByPostId(
       paginatorParams,
       postId,
@@ -84,27 +85,31 @@ export class PostsController {
     if (!(await this.queryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const { userId } = req.user;
-    const comment = await this.commentService.createComment(
+    const userId = req.user?.userId;
+    return await this.commentService.createComment(
       commentDto.content,
       userId,
       postId,
     );
-    return comment;
   }
 
   @Get()
-  async findPosts(@Query() query: PaginatorInputType) {
+  async findPosts(@Query() query: PaginatorInputType, @Req() req: Request) {
     const paginatorParams = castQueryParams(query);
-    return await this.queryRepository.findPosts(paginatorParams);
+    const userId = req.user?.userId;
+    return await this.queryRepository.findPosts(paginatorParams, null, userId);
   }
 
   @Get(':postId')
-  async getPost(@Param('postId', ValidateObjectIdTypePipe) postId: string) {
+  async getPost(
+    @Param('postId', ValidateObjectIdTypePipe) postId: string,
+    @Req() req: Request,
+  ) {
     if (!(await this.queryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
-    return await this.queryRepository.getPostById(postId);
+    const userId = req.user?.userId;
+    return await this.queryRepository.getPostById(postId, userId);
   }
 
   @UseGuards(AuthGuard('basic'))
