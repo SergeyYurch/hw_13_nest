@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Post } from '../../domain/schemas/post.schema';
+import { User } from './domain/user.schema';
 
 @Injectable()
 export class UsersRepository {
-  async save(user): Promise<Post> {
+  async save(user): Promise<User> {
     return user.save();
   }
 }
