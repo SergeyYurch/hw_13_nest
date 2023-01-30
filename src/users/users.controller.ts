@@ -9,12 +9,16 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { castQueryParams } from '../infrastructure/helpers/helpers';
-import { QueryRepository } from '../infrastructure/repositories/query.repository';
-import { UserInputModel } from '../application/inputModels/userInputModel';
-import { UsersService } from '../application/users.service';
+import { QueryRepository } from '../query/query.repository';
+import { UserInputModel } from './dto/userInputModel';
+import { UsersService } from './users.service';
+import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('basic'))
 @Controller('users')
 export class UsersController {
   constructor(
@@ -29,7 +33,6 @@ export class UsersController {
     @Query() query,
   ) {
     const paginatorParams = castQueryParams(query);
-    console.log(paginatorParams);
     return await this.queryRepository.findUsers(
       paginatorParams,
       searchLoginTerm,
@@ -39,12 +42,12 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() userInputDto: UserInputModel) {
-    return await this.usersService.createNewUser(userInputDto);
+    return await this.usersService.createNewUser(userInputDto, true);
   }
 
   @Delete(':userId')
   @HttpCode(204)
-  async deleteBlog(@Param('userId') userId: string) {
+  async deleteBlog(@Param('userId', ValidateObjectIdTypePipe) userId: string) {
     if (!(await this.queryRepository.checkUserId(userId))) {
       throw new NotFoundException('Invalid blogId');
     }
