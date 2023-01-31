@@ -9,7 +9,6 @@ import { UsersModule } from './users/users.module';
 import { BlogsModule } from './blogs/blogs.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
-import { SecurityDevicesModule } from './security-devices/security-devices.module';
 import { QueryModule } from './query/query.module';
 import { getMongoConfig } from './configs/mongo.config';
 import { TestingModule } from './testing/testing.module';
@@ -19,6 +18,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CheckUserIdMiddleware } from './infrastructure/middlewares/check-user-id-middleware.service';
 import { JwtService } from '@nestjs/jwt';
+import { SecurityModule } from './security/security.module';
 
 @Module({
   imports: [
@@ -64,9 +64,9 @@ import { JwtService } from '@nestjs/jwt';
     BlogsModule,
     PostsModule,
     CommentsModule,
-    SecurityDevicesModule,
     QueryModule,
     TestingModule,
+    SecurityModule,
   ],
   providers: [
     JwtService,
