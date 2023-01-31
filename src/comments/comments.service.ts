@@ -1,6 +1,6 @@
 import { QueryRepository } from '../query/query.repository';
 import { CommentsRepository } from './comments.repository';
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Comment, CommentDocument } from './domain/comment.schema';
@@ -24,6 +24,13 @@ export class CommentsService {
     return this.queryRepository.getCommentViewModel(comment);
   }
 
+  async validateOwner(commentId, userId) {
+    const comment = await this.CommentModel.findById(commentId);
+    if (userId !== comment.userId) {
+      throw new ForbiddenException('Forbidden');
+    }
+  }
+
   async deleteComment(commentId: string) {
     const result = await this.CommentModel.deleteOne({
       _id: new Types.ObjectId(commentId),
@@ -31,8 +38,15 @@ export class CommentsService {
     return result.deletedCount === 1;
   }
 
-  async updateComment(commentId: string, commentDto: CommentInputModel) {
+  async updateComment(
+    commentId: string,
+    commentDto: CommentInputModel,
+    userId: string,
+  ) {
     const comment = await this.CommentModel.findById(commentId);
+    if (userId !== comment.userId) {
+      throw new ForbiddenException('Forbidden');
+    }
     comment.updateContent(commentDto.content);
     return await this.commentsRepository.save(comment);
   }
