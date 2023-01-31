@@ -131,7 +131,9 @@ export class User {
       expiresDate,
     };
     this.sigIn = true;
-    this.deviceSessions.filter((s) => s.expiresDate > new Date());
+    this.deviceSessions = this.deviceSessions.filter(
+      (s) => s.expiresDate > new Date(),
+    );
     const session = this.deviceSessions.find((s) => s.deviceId === deviceId);
     if (session) {
       this.deviceSessions = this.deviceSessions.map((s) =>
@@ -143,6 +145,9 @@ export class User {
   }
 
   async validateDeviceSession(deviceId: string, lastActiveDate: Date) {
+    this.deviceSessions = this.deviceSessions.filter(
+      (s) => s.expiresDate > new Date(),
+    );
     const deviceSession = this.deviceSessions.find(
       (s) => s.deviceId === deviceId,
     );
@@ -203,6 +208,20 @@ export class User {
       expirationDate: getPasswordRecoveryCodeExpirationDate(),
     };
   }
+  getSessions() {
+    return this.deviceSessions;
+  }
+  deleteSessionsExclude(deviceId) {
+    this.deviceSessions = this.deviceSessions.filter(
+      (s) => s.deviceId === deviceId,
+    );
+  }
+
+  deleteSession(deviceId) {
+    this.deviceSessions = this.deviceSessions.filter(
+      (s) => s.deviceId !== deviceId,
+    );
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -220,5 +239,8 @@ UserSchema.methods = {
   generateNewPasswordRecoveryCode:
     User.prototype.generateNewPasswordRecoveryCode,
   setNewPassword: User.prototype.setNewPassword,
+  getSessions: User.prototype.getSessions,
+  deleteSessionsExclude: User.prototype.deleteSessionsExclude,
+  deleteSession: User.prototype.deleteSession,
 };
 export type UserDocument = HydratedDocument<User>;
