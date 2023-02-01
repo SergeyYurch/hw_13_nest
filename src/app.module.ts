@@ -12,8 +12,6 @@ import { CommentsModule } from './comments/comments.module';
 import { QueryModule } from './query/query.module';
 import { getMongoConfig } from './configs/mongo.config';
 import { TestingModule } from './testing/testing.module';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CheckUserIdMiddleware } from './infrastructure/middlewares/check-user-id-middleware.service';
@@ -27,10 +25,6 @@ import { SecurityModule } from './security/security.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getMongoConfig,
-    }),
-    ThrottlerModule.forRoot({
-      ttl: 10,
-      limit: 5,
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -68,13 +62,7 @@ import { SecurityModule } from './security/security.module';
     TestingModule,
     SecurityModule,
   ],
-  providers: [
-    JwtService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [JwtService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

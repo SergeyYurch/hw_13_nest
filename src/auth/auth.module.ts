@@ -15,9 +15,14 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { UsersService } from '../users/users.service';
 import { MailService } from '../infrastructure/mail.service/mail.service';
 import { BasicStrategy } from './strategies/auth-basic.strategy';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 10,
+      limit: 5,
+    }),
     QueryModule,
     UsersModule,
     ConfigModule,
@@ -36,6 +41,10 @@ import { BasicStrategy } from './strategies/auth-basic.strategy';
     LocalStrategy,
     BasicStrategy,
     UsersRepository,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AuthModule {}

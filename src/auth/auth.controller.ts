@@ -22,7 +22,9 @@ import { RegistrationEmailResendingInputModel } from './dto/registrationEmailRes
 import { PasswordRecoveryInputModel } from './dto/passwordRecoveryInputModel';
 import { NewPasswordRecoveryInputModel } from './dto/newPasswordRecoveryInputModel';
 import { QueryRepository } from '../query/query.repository';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -30,6 +32,7 @@ export class AuthController {
     private queryRepository: QueryRepository,
   ) {}
 
+  @SkipThrottle()
   @UseGuards(AccessTokenGuard)
   @Get('me')
   async getAuthInfo(@Req() req: Request) {
@@ -62,6 +65,7 @@ export class AuthController {
     return res.json({ accessToken: accessToken });
   }
 
+  @SkipThrottle()
   @UseGuards(RefreshTokenGuard)
   @HttpCode(200)
   @Post('/logout')
@@ -72,6 +76,7 @@ export class AuthController {
     return res.sendStatus(204);
   }
 
+  @SkipThrottle()
   @UseGuards(RefreshTokenGuard)
   @Post('/refresh-token')
   async refreshTokens(
