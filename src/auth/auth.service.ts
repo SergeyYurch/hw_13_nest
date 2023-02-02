@@ -196,6 +196,11 @@ export class AuthService {
       ]);
     }
     user.generateNewEmailConfirmationCode();
+    const resultSendEmail = await this.mailService.sendConfirmationEmail(
+      user.accountData.email,
+      user.emailConfirmation.confirmationCode,
+    );
+    if (!resultSendEmail) console.log('email did not send');
     await this.userRepository.save(user);
   }
 
