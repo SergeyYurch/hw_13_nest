@@ -18,9 +18,13 @@ export class MailService {
           confirmationCode,
         },
       })
-      .then()
+      .then((info) => {
+        console.log(`${new Date()}email is send`);
+        console.log(info);
+      })
       .catch((e) => {
         console.log(e);
+        console.log(`email did not send`);
         result = false;
       });
     return result;
