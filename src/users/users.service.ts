@@ -32,6 +32,7 @@ export class UsersService {
       );
       if (!resultSendEmail) console.log('email did not send');
     }
+    console.log(`${new Date()}user ${userDto.login} is register`);
     return this.queryRepository.getUserViewModel(user);
   }
 
