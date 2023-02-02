@@ -150,11 +150,19 @@ export class AuthService {
   }
 
   async registration(userDto: UserInputModel) {
+    console.log(
+      `${new Date()}: start registration user:${UserInputModel.name}`,
+    );
     const emailIsExist = await this.findUserByLoginOrEmail(userDto.email);
-    const loginIsExist = await this.findUserByLoginOrEmail(userDto.login);
-    if (emailIsExist || loginIsExist) {
+    if (emailIsExist) {
       throw new BadRequestException([
-        { message: LOGIN_BUSY_MESSAGE, field: 'loginOrEmail' },
+        { message: LOGIN_BUSY_MESSAGE, field: 'email' },
+      ]);
+    }
+    const loginIsExist = await this.findUserByLoginOrEmail(userDto.login);
+    if (loginIsExist) {
+      throw new BadRequestException([
+        { message: LOGIN_BUSY_MESSAGE, field: 'login' },
       ]);
     }
     return await this.usersService.createNewUser(userDto);
