@@ -41,10 +41,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
     LocalStrategy,
     BasicStrategy,
     UsersRepository,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
   ],
 })
 export class AuthModule {}
