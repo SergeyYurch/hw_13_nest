@@ -6,7 +6,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendConfirmationEmail(email: string, confirmationCode: string) {
-    console.log(`send to ${email} code: ${confirmationCode}`);
+    console.log(`${new Date()}:send to ${email} code: ${confirmationCode}`);
     let result = true;
     this.mailerService
       .sendMail({
