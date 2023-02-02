@@ -4,7 +4,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { QueryRepository } from '../query/query.repository';
-import { UNAUTHORIZED_MESSAGE } from './auth.constant';
+import {
+  EMAIL_CONFIRMATION_MESSAGE,
+  EMAIL_RESENDING_MESSAGE,
+  LOGIN_BUSY_MESSAGE,
+  PASSWORD_RECOVERY_CODE_MESSAGE,
+  PASSWORD_RECOVERY_MESSAGE,
+  UNAUTHORIZED_MESSAGE,
+} from './auth.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Model, Types } from 'mongoose';
@@ -30,12 +37,14 @@ export class AuthService {
 
   async validateUser(loginOrEmail: string, password: string) {
     const user = await this.findUserByLoginOrEmail(loginOrEmail);
-    if (!user) return null;
-    if (!(await user.validateCredentials(password))) {
-      throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
+    if (!user || !(await user.validateCredentials(password))) {
+      throw new UnauthorizedException([
+        { message: UNAUTHORIZED_MESSAGE, field: 'loginOrEmail' },
+      ]);
     }
     return user;
   }
+
   async validateSigInStatus(userId) {
     const user = await this.UserModel.findById(userId);
     if (!user) {
@@ -74,9 +83,6 @@ export class AuthService {
     title = 'no data',
   ) {
     const user = await this.validateUser(loginOrEmail, password);
-    if (!user) {
-      throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
-    }
     const deviceId = new Types.ObjectId().toString();
     const { accessToken, refreshToken, expiresDate } = await this.getTokens(
       user._id.toString(),
@@ -147,7 +153,9 @@ export class AuthService {
     const emailIsExist = await this.findUserByLoginOrEmail(userDto.email);
     const loginIsExist = await this.findUserByLoginOrEmail(userDto.login);
     if (emailIsExist || loginIsExist) {
-      throw new BadRequestException('email or login is already busy');
+      throw new BadRequestException([
+        { message: LOGIN_BUSY_MESSAGE, field: 'loginOrEmail' },
+      ]);
     }
     return await this.usersService.createNewUser(userDto);
   }
@@ -157,13 +165,19 @@ export class AuthService {
       'emailConfirmation.confirmationCode': code,
     }).exec();
     if (!user) {
-      throw new BadRequestException('Email confirmation code is wrong');
+      throw new BadRequestException([
+        { message: EMAIL_CONFIRMATION_MESSAGE, field: 'code' },
+      ]);
     }
     if (user.emailConfirmation.expirationDate < new Date()) {
-      throw new BadRequestException('Email confirmation code is expired');
+      throw new BadRequestException([
+        { message: EMAIL_CONFIRMATION_MESSAGE, field: 'code' },
+      ]);
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new BadRequestException('Email confirmation code is confirmed');
+      throw new BadRequestException([
+        { message: EMAIL_CONFIRMATION_MESSAGE, field: 'code' },
+      ]);
     }
     user.confirmEmail();
     await this.userRepository.save(user);
@@ -172,10 +186,14 @@ export class AuthService {
   async registrationEmailResending(email: string) {
     const user = await this.findUserByLoginOrEmail(email);
     if (!user) {
-      throw new BadRequestException('Email is wrong');
+      throw new BadRequestException([
+        { message: EMAIL_RESENDING_MESSAGE, field: 'email' },
+      ]);
     }
     if (user.emailConfirmation.isConfirmed) {
-      throw new BadRequestException('Email is wrong or confirmed');
+      throw new BadRequestException([
+        { message: EMAIL_RESENDING_MESSAGE, field: 'email' },
+      ]);
     }
     user.generateNewEmailConfirmationCode();
     await this.userRepository.save(user);
@@ -184,7 +202,9 @@ export class AuthService {
   async passwordRecovery(email: string) {
     const user = await this.findUserByLoginOrEmail(email);
     if (!user) {
-      throw new BadRequestException('Email is wrong');
+      throw new BadRequestException([
+        { message: PASSWORD_RECOVERY_MESSAGE, field: 'email' },
+      ]);
     }
     user.generateNewPasswordRecoveryCode();
     await this.userRepository.save(user);
@@ -201,13 +221,19 @@ export class AuthService {
       'passwordRecoveryInformation.recoveryCode': recoveryCode,
     }).exec();
     if (!user) {
-      throw new BadRequestException('Password recovery code is wrong');
+      throw new BadRequestException([
+        { message: PASSWORD_RECOVERY_CODE_MESSAGE, field: 'recoveryCode' },
+      ]);
     }
     if (user.passwordRecoveryInformation.expirationDate < new Date()) {
-      throw new BadRequestException('Password recovery code is expired');
+      throw new BadRequestException([
+        { message: PASSWORD_RECOVERY_CODE_MESSAGE, field: 'recoveryCode' },
+      ]);
     }
     if (user.passwordRecoveryInformation.recoveryCode !== recoveryCode) {
-      throw new BadRequestException('Password recovery code is expired');
+      throw new BadRequestException([
+        { message: PASSWORD_RECOVERY_CODE_MESSAGE, field: 'recoveryCode' },
+      ]);
     }
     await user.setNewPassword(newPassword);
     await this.userRepository.save(user);
