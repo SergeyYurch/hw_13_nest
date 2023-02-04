@@ -5,50 +5,34 @@ import { Injectable } from '@nestjs/common';
 export class MailService {
   constructor(private mailerService: MailerService) {}
 
-  sendConfirmationEmail(email: string, confirmationCode: string) {
+  async sendConfirmationEmail(email: string, confirmationCode: string) {
     console.log(`${new Date()}:send to ${email} code: ${confirmationCode}`);
-    let result = true;
-    this.mailerService
-      .sendMail({
-        to: email,
-        from: 'noreply@nestjs.com',
-        subject: 'Confirmation email',
-        template: 'email',
-        context: {
-          confirmationCode,
-        },
-      })
-      .then((info) => {
-        console.log(`${new Date()}email is send`);
-        console.log(info);
-      })
-      .catch((e) => {
-        console.log(e);
-        console.log(`email did not send`);
-        result = false;
-      });
-    return result;
+    const result = await this.mailerService.sendMail({
+      to: email,
+      from: 'noreply@nestjs.com',
+      subject: 'Confirmation email',
+      template: 'email',
+      context: {
+        confirmationCode,
+      },
+    });
+
+    console.log(`${new Date()}:[MailService] email is send`);
+    console.log(result);
   }
 
-  sendPasswordRecoveryEmail(email: string, recoveryCode: string) {
+  async sendPasswordRecoveryEmail(email: string, recoveryCode: string) {
     console.log(`send to ${email} recoveryCode: ${recoveryCode}`);
-    let result = true;
-    this.mailerService
-      .sendMail({
-        to: email,
-        from: 'noreply@nestjs.com',
-        subject: 'Password recovery email',
-        template: 'password',
-        context: {
-          recoveryCode,
-        },
-      })
-      .then()
-      .catch((e) => {
-        console.log('!!!!!!!!!!!!!!!!!!!!!!!!');
-        console.log(e);
-        result = false;
-      });
+    const result = await this.mailerService.sendMail({
+      to: email,
+      from: 'noreply@nestjs.com',
+      subject: 'Password recovery email',
+      template: 'password',
+      context: {
+        recoveryCode,
+      },
+    });
+
     return result;
   }
 }

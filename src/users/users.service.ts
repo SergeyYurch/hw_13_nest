@@ -26,11 +26,10 @@ export class UsersService {
     const user = await this.userRepository.save(createdUser);
     if (!user) return null;
     if (!isConfirmed) {
-      const resultSendEmail = await this.mailService.sendConfirmationEmail(
+      await this.mailService.sendConfirmationEmail(
         user.accountData.email,
         user.emailConfirmation.confirmationCode,
       );
-      if (!resultSendEmail) console.log('email did not send');
     }
     console.log(`${new Date()}user ${userDto.login} is register`);
     return this.queryRepository.getUserViewModel(user);

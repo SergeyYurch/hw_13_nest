@@ -208,7 +208,6 @@ export class AuthService {
       user.accountData.email,
       user.emailConfirmation.confirmationCode,
     );
-    if (!resultSendEmail) console.log('email did not send');
     await this.userRepository.save(user);
   }
 
@@ -221,7 +220,7 @@ export class AuthService {
     }
     user.generateNewPasswordRecoveryCode();
     await this.userRepository.save(user);
-    const resultSendEmail = this.mailService.sendPasswordRecoveryEmail(
+    const resultSendEmail = await this.mailService.sendPasswordRecoveryEmail(
       user.accountData.email,
       user.passwordRecoveryInformation.recoveryCode,
     );
