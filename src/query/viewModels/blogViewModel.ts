@@ -4,4 +4,5 @@ export class BlogViewModel {
   description: string;
   websiteUrl: string;
   createdAt: string;
+  isMembership: boolean;
 }
