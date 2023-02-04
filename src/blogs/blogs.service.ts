@@ -15,10 +15,11 @@ export class BlogsService {
     private queryRepository: QueryRepository,
   ) {}
 
-  async createNewBlog(inputBlog: BlogInputModel): Promise<BlogViewModel> {
-    const createdBlog = new this.BlogModel(inputBlog);
+  async createNewBlog(inputBlogDto: BlogInputModel): Promise<BlogViewModel> {
+    const createdBlog = new this.BlogModel();
+    createdBlog.initial(inputBlogDto);
     const newBlog = await this.blogRepository.save(createdBlog);
-    return this.queryRepository.getBlogViewModel(newBlog);
+    return this.queryRepository.getBlogById(newBlog._id.toString());
   }
 
   async editBlog(blogId: string, changes: BlogInputModel): Promise<boolean> {
