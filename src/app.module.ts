@@ -26,32 +26,55 @@ import { SecurityModule } from './security/security.module';
       inject: [ConfigService],
       useFactory: getMongoConfig,
     }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: {
-          host: 'smtp.gmail.com',
-          port: 465,
-          ignoreTLS: true,
-          secure: true,
-          auth: {
-            user: config.get('SMTP_USER'),
-            pass: config.get('SMTP_PASS'),
-          },
-          tls: { rejectUnauthorized: false },
+    // MailerModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     transport: {
+    //       host: 'smtp.gmail.com',
+    //       port: 465,
+    //       ignoreTLS: true,
+    //       secure: true,
+    //       auth: {
+    //         user: config.get('SMTP_USER'),
+    //         pass: config.get('SMTP_PASS'),
+    //       },
+    //       tls: { rejectUnauthorized: false },
+    //     },
+    //     defaults: {
+    //       from: '"nest-modules" <modules@nestjs.com>',
+    //     },
+    //     template: {
+    //       dir: __dirname + '/templates',
+    //       adapter: new HandlebarsAdapter(),
+    //       options: {
+    //         strict: true,
+    //       },
+    //     },
+    //   }),
+    // }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        ignoreTLS: true,
+        secure: true,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
         },
-        defaults: {
-          from: '"nest-modules" <modules@nestjs.com>',
+        tls: { rejectUnauthorized: false },
+      },
+      defaults: {
+        from: '"nest-modules" <modules@nestjs.com>',
+      },
+      template: {
+        dir: __dirname + '/templates',
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
         },
-        template: {
-          dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
+      },
     }),
     AuthModule,
     UsersModule,
