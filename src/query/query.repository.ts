@@ -220,10 +220,11 @@ export class QueryRepository {
     );
     const dislikesCount = dislike.length;
     likes.sort((l1, l2) => {
-      if (l1.addedAt < l2.addedAt) return -1;
       if (l1.addedAt < l2.addedAt) return 1;
+      if (l1.addedAt > l2.addedAt) return -1;
       return 0;
     });
+    console.log(likes);
     const lastLikes = likes.slice(0, 3);
     const newestLikes = lastLikes.map((l) => ({
       addedAt: l.addedAt.toISOString(),
