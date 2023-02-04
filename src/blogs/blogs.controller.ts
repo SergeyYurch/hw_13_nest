@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
@@ -24,6 +25,7 @@ import { PostsService } from '../posts/posts.service';
 import { PostInputModel } from '../posts/dto/postInputModel';
 import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 @Controller('blogs')
 export class BlogsController {
@@ -54,12 +56,18 @@ export class BlogsController {
   async getPostsForBlog(
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Query() query: PaginatorInputType,
+    @Req() req: Request,
   ): Promise<PaginatorView<PostViewModel>> {
     if (!(await this.queryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
+    const userId = req.user.userId;
     const paginatorParams = castQueryParams(query);
-    return await this.queryRepository.findPosts(paginatorParams, blogId);
+    return await this.queryRepository.findPosts(
+      paginatorParams,
+      blogId,
+      userId,
+    );
   }
 
   @UseGuards(AuthGuard('basic'))
