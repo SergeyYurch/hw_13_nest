@@ -21,7 +21,7 @@ export class Blog {
   @Prop({ default: false })
   isMembership: boolean;
 
-  constructor(inputDate: BlogInputModel) {
+  initial(inputDate: BlogInputModel) {
     this.name = inputDate.name;
     this.websiteUrl = inputDate.websiteUrl;
     this.description = inputDate.description;
@@ -37,6 +37,7 @@ export class Blog {
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 BlogSchema.methods = {
   blogUpdate: Blog.prototype.blogUpdate,
+  initial: Blog.prototype.initial,
 };
 
 export type BlogDocument = HydratedDocument<Blog>;
