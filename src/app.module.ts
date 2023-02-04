@@ -91,5 +91,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CheckUserIdMiddleware).forRoutes('posts');
     consumer.apply(CheckUserIdMiddleware).forRoutes('comments');
+    consumer.apply(CheckUserIdMiddleware).forRoutes('blogs');
   }
 }
