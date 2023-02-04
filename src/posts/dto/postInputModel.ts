@@ -12,15 +12,18 @@ export class PostInputModel {
   @IsString()
   @Transform(({ value }) => value.trim())
   @Length(1, 100)
+  @IsNotEmpty()
   shortDescription: string; // * , maxLength: 100
 
   @IsString()
   @Transform(({ value }) => value.trim())
   @Length(1, 1000)
+  @IsNotEmpty()
   content: string; // *,  maxLength: 1000
 
   @IsString()
   @Transform(({ value }) => value.trim())
   @IsBlogExist({ message: 'blog does not exist' })
+  @IsNotEmpty()
   blogId: string; // *
 }
