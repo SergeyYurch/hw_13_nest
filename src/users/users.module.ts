@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { QueryModule } from '../query/query.module';
 import { MailService } from '../infrastructure/mail.service/mail.service';
+import { IsUniqLoginOrEmailConstraint } from './common/login-or-emai-uniq-validate';
 
 @Module({
   imports: [
@@ -15,6 +16,11 @@ import { MailService } from '../infrastructure/mail.service/mail.service';
 
   controllers: [UsersController],
 
-  providers: [UsersService, UsersRepository, MailService],
+  providers: [
+    UsersService,
+    UsersRepository,
+    MailService,
+    IsUniqLoginOrEmailConstraint,
+  ],
 })
 export class UsersModule {}
