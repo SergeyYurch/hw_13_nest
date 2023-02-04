@@ -233,8 +233,6 @@ export class QueryRepository {
     }));
     let myStatus: LikeStatusType = 'None';
     if (userId) {
-      console.log('getPostViewModel');
-      console.log(`userId:${userId}`);
       const myLike = post.likes.find((l) => l.userId === userId);
       if (myLike) myStatus = myLike.likeStatus;
     }
@@ -267,9 +265,10 @@ export class QueryRepository {
       dislikesCount = comment.likes.filter(
         (c) => c.likeStatus === 'Dislike',
       ).length;
-      myStatus = userId
-        ? comment.likes.find((l) => l.userId === userId).likeStatus
-        : 'None';
+      if (userId) {
+        const myLike = comment.likes.find((l) => l.userId === userId);
+        if (myLike) myStatus = myLike.likeStatus;
+      }
     }
 
     return {
