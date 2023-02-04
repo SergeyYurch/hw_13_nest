@@ -10,7 +10,6 @@ import {
   Query,
   NotFoundException,
   InternalServerErrorException,
-  BadRequestException,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -37,6 +36,7 @@ export class PostsController {
   ) {}
 
   @UseGuards(AccessTokenGuard)
+  @HttpCode(204)
   @Put(':postId/like-status')
   async updatePostLikeStatus(
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
@@ -115,14 +115,6 @@ export class PostsController {
   @UseGuards(AuthGuard('basic'))
   @Post()
   async createPost(@Body() postDto: PostInputModel): Promise<PostViewModel> {
-    if (!(await this.queryRepository.checkBlogId(postDto.blogId))) {
-      throw new BadRequestException([
-        {
-          message: 'Invalid blogId',
-          field: 'blogId',
-        },
-      ]);
-    }
     const result = await this.postsService.createNewPost(postDto);
     if (!result) {
       throw new InternalServerErrorException('Server error');
