@@ -124,6 +124,7 @@ export class AuthService {
     const expiresDate = new Date(
       this.jwtService.decode(refreshToken)['exp'] * 1000,
     );
+    console.log(expiresDate);
     return {
       accessToken,
       refreshToken,
