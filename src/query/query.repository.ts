@@ -39,6 +39,14 @@ export class QueryRepository {
   async checkCommentId(commentId: string) {
     return !!(await this.CommentModel.findById(commentId));
   }
+  async findUserByLoginOrEmail(loginOrEmail: string) {
+    return await this.UserModel.findOne({
+      $or: [
+        { 'accountData.email': loginOrEmail },
+        { 'accountData.login': loginOrEmail },
+      ],
+    }).exec();
+  }
 
   async findBlogs(
     paginatorParams,
@@ -196,6 +204,7 @@ export class QueryRepository {
       description: blog.description,
       websiteUrl: blog.websiteUrl,
       createdAt: blog.createdAt.toISOString(),
+      isMembership: blog.isMembership,
     };
   }
 
