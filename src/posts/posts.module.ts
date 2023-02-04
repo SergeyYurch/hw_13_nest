@@ -10,6 +10,7 @@ import { CommentsModule } from '../comments/comments.module';
 import { CommentsService } from '../comments/comments.service';
 import { Comment, CommentSchema } from '../comments/domain/comment.schema';
 import { CommentsRepository } from '../comments/comments.repository';
+import { IsBlogExistConstraint } from './common/blog-validate';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CommentsRepository } from '../comments/comments.repository';
     PostsRepository,
     CommentsService,
     CommentsRepository,
+    IsBlogExistConstraint,
   ],
   exports: [PostsService],
 })
