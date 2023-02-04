@@ -18,6 +18,9 @@ export class Blog {
   @Prop({ default: new Date() })
   createdAt: Date;
 
+  @Prop({ default: false })
+  isMembership: boolean;
+
   constructor(inputDate: BlogInputModel) {
     this.name = inputDate.name;
     this.websiteUrl = inputDate.websiteUrl;
