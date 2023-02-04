@@ -7,7 +7,6 @@ import { QueryRepository } from '../query/query.repository';
 import {
   EMAIL_CONFIRMATION_MESSAGE,
   EMAIL_RESENDING_MESSAGE,
-  LOGIN_BUSY_MESSAGE,
   PASSWORD_RECOVERY_CODE_MESSAGE,
   PASSWORD_RECOVERY_MESSAGE,
   UNAUTHORIZED_MESSAGE,
@@ -150,21 +149,6 @@ export class AuthService {
   }
 
   async registration(userDto: UserInputModel) {
-    console.log(
-      `${new Date()}: start registration user:${UserInputModel.name}`,
-    );
-    const emailIsExist = await this.findUserByLoginOrEmail(userDto.email);
-    if (emailIsExist) {
-      throw new BadRequestException([
-        { message: LOGIN_BUSY_MESSAGE, field: 'email' },
-      ]);
-    }
-    const loginIsExist = await this.findUserByLoginOrEmail(userDto.login);
-    if (loginIsExist) {
-      throw new BadRequestException([
-        { message: LOGIN_BUSY_MESSAGE, field: 'login' },
-      ]);
-    }
     return await this.usersService.createNewUser(userDto);
   }
 
@@ -204,7 +188,7 @@ export class AuthService {
       ]);
     }
     user.generateNewEmailConfirmationCode();
-    const resultSendEmail = await this.mailService.sendConfirmationEmail(
+    await this.mailService.sendConfirmationEmail(
       user.accountData.email,
       user.emailConfirmation.confirmationCode,
     );
