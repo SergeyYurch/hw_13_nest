@@ -29,6 +29,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     if (req.cookies && 'refreshToken' in req.cookies) {
       return req.cookies['refreshToken'];
     }
+    console.log('[ RefreshTokenStrategy]: refreshToken not found');
     return null;
   }
 
