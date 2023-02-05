@@ -18,6 +18,7 @@ export class SecurityController {
 
   @Get('devices')
   getDeviceSessions(@Req() req: Request) {
+    console.log('get:/devices');
     const userId = req.user.userId;
     return this.securityService.getAllSessionByUserId(userId);
   }
