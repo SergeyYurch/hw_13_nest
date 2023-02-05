@@ -11,11 +11,11 @@ import { SecurityService } from './security.service';
 import { RefreshTokenGuard } from '../api/guards/refresh-token.guard';
 import { Request } from 'express';
 
-@UseGuards(RefreshTokenGuard)
 @Controller('security')
 export class SecurityController {
   constructor(private readonly securityService: SecurityService) {}
 
+  @UseGuards(RefreshTokenGuard)
   @Get('devices')
   getDeviceSessions(@Req() req: Request) {
     const userId = req.user.userId;
