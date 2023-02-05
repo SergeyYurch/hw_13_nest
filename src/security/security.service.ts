@@ -38,8 +38,7 @@ export class SecurityService {
     if (!user) {
       throw new NotFoundException('Invalid deviceId');
     }
-    const result = user.deviceSessions.find((d) => d.deviceId === deviceId);
-    if (!result) {
+    if (user._id.toString() !== userId) {
       throw new ForbiddenException('Forbidden');
     }
     return user;
