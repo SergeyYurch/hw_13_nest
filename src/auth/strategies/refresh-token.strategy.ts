@@ -33,6 +33,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: any) {
+    console.log('refresh-strategy/validate');
     const jwtPayload: JwtPayloadType = <JwtPayloadType>(
       this.jwtService.decode(payload.cookies['refreshToken'])
     );
