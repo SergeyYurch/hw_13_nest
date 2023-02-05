@@ -68,9 +68,11 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
     }
-    if (
-      !user.validateDeviceSession(jwtPayload.deviceId, new Date(jwtPayload.iat))
-    ) {
+    const deviceIdIsValid = await user.validateDeviceSession(
+      jwtPayload.deviceId,
+      new Date(jwtPayload.iat),
+    );
+    if (!deviceIdIsValid) {
       throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
     }
   }
@@ -124,7 +126,7 @@ export class AuthService {
     const expiresDate = new Date(
       this.jwtService.decode(refreshToken)['exp'] * 1000,
     );
-    console.log(expiresDate);
+
     return {
       accessToken,
       refreshToken,
