@@ -136,7 +136,7 @@ export class AuthController {
 
   getCookiesWithToken(res: Response, refreshToken: string, expiresDate) {
     res.cookie('refreshToken', refreshToken, {
-      expires: expiresDate,
+      expires: new Date(expiresDate),
       secure: true,
       httpOnly: true,
     });
