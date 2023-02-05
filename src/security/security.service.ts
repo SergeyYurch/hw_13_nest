@@ -17,9 +17,6 @@ export class SecurityService {
   ) {}
   async getAllSessionByUserId(userId: string) {
     const user = await this.UserModel.findById(userId);
-    if (!user) {
-      throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
-    }
     return user.getSessions();
   }
 
