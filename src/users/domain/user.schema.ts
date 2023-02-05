@@ -216,7 +216,19 @@ export class User {
     };
   }
   getSessions() {
-    return this.deviceSessions;
+    //delete expired sessions
+    this.deviceSessions = this.deviceSessions.filter(
+      (s) => s.expiresDate > +new Date(),
+    );
+    if (this.deviceSessions.length === 0) {
+      this.sigIn = false;
+    }
+    return this.deviceSessions.map((s) => ({
+      ip: s.ip,
+      title: s.title,
+      lastActiveDate: new Date(s.lastActiveDate),
+      deviceId: s.deviceId,
+    }));
   }
   deleteSessionsExclude(deviceId) {
     this.deviceSessions = this.deviceSessions.filter(
