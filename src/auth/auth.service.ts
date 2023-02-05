@@ -85,20 +85,9 @@ export class AuthService {
   ) {
     const user = await this.validateUser(loginOrEmail, password);
     const deviceId = new Types.ObjectId().toString();
-    const { accessToken, refreshToken, expiresDate } = await this.getTokens(
-      user._id.toString(),
-      deviceId,
-    );
-    const payload = this.jwtService.decode(refreshToken);
-    const lastActiveDate = new Date(payload['iat'] * 1000);
-    await user.signIn(
-      password,
-      deviceId,
-      ip,
-      title,
-      expiresDate,
-      lastActiveDate,
-    );
+    const { accessToken, refreshToken, expiresDate, lastActiveDate } =
+      await this.getTokens(user._id.toString(), deviceId);
+    await user.signIn(deviceId, ip, title, expiresDate, lastActiveDate);
     await this.userRepository.save(user);
     return { accessToken, refreshToken, expiresDate };
   }
@@ -123,14 +112,15 @@ export class AuthService {
         },
       ),
     ]);
-    const expiresDate = new Date(
-      this.jwtService.decode(refreshToken)['exp'] * 1000,
-    );
+    const jwtPayload = (await this.jwtService.decode(
+      refreshToken,
+    )) as JwtPayloadType;
 
     return {
       accessToken,
       refreshToken,
-      expiresDate,
+      expiresDate: jwtPayload.exp * 1000,
+      lastActiveDate: jwtPayload.iat * 1000,
     };
   }
 
@@ -141,12 +131,10 @@ export class AuthService {
   }
 
   async refreshTokens(userId: string, deviceId: string) {
-    const { accessToken, refreshToken, expiresDate } = await this.getTokens(
-      userId,
-      deviceId,
-    );
+    const { accessToken, refreshToken, expiresDate, lastActiveDate } =
+      await this.getTokens(userId, deviceId);
     const user = await this.UserModel.findById(userId);
-    user.refreshTokens(deviceId, expiresDate);
+    user.refreshTokens(deviceId, expiresDate, lastActiveDate);
     await this.userRepository.save(user);
     return { accessToken, refreshToken, expiresDate };
   }
