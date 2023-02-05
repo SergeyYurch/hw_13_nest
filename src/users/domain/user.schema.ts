@@ -134,7 +134,7 @@ export class User {
     };
     this.sigIn = true;
     this.deviceSessions = this.deviceSessions.filter(
-      (s) => s.expiresDate > new Date(),
+      (s) => +s.expiresDate > +new Date(),
     );
     const session = this.deviceSessions.find((s) => s.deviceId === deviceId);
     if (session) {
@@ -150,7 +150,7 @@ export class User {
     console.log('validateDeviceSession input');
     console.log(lastActiveDate);
     this.deviceSessions = this.deviceSessions.filter(
-      (s) => s.expiresDate > new Date(),
+      (s) => +s.expiresDate > +new Date(),
     );
     const deviceSession = this.deviceSessions.find(
       (s) => s.deviceId === deviceId,
