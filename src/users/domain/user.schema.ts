@@ -59,9 +59,9 @@ export class DeviceSessions {
   @Prop({ required: true })
   title: string;
   @Prop({ required: true })
-  lastActiveDate: Date;
+  lastActiveDate: number;
   @Prop({ required: true })
-  expiresDate: Date;
+  expiresDate: number;
 }
 
 const AccountDataSchema = SchemaFactory.createForClass(AccountData);
@@ -107,62 +107,59 @@ export class User {
   }
 
   async signIn(
-    password: string,
     deviceId: string,
     ip: string,
     title: string,
-    expiresDate: Date,
-    lastActiveDate: Date,
+    expiresDate: number,
+    lastActiveDate: number,
   ) {
-    console.log('signIn');
-    console.log(lastActiveDate);
-    // const passIsValid = await bcrypt.compare(
-    //   password,
-    //   this.accountData.passwordHash,
-    // );
-    //
-    // if (!passIsValid || !this.emailConfirmation.isConfirmed) {
-    //   console.log('bcrypt.compare err');
-    //   throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
-    // }
-    const deviceSession: DeviceSessions = {
-      deviceId,
-      ip,
-      title,
-      lastActiveDate,
-      expiresDate,
-    };
-    this.sigIn = true;
-    this.deviceSessions = this.deviceSessions.filter(
-      (s) => +s.expiresDate > +new Date(),
-    );
-    const session = this.deviceSessions.find((s) => s.deviceId === deviceId);
-    if (session) {
-      this.deviceSessions = this.deviceSessions.map((s) =>
-        s.deviceId === deviceId ? deviceSession : s,
+    try {
+      //validate input data
+      if (!ip || !title || !deviceId || !lastActiveDate) return false;
+      if (!expiresDate || expiresDate < +new Date()) return false;
+      if (!Number.isInteger(lastActiveDate) || lastActiveDate < +new Date(2020))
+        return false;
+      const deviceSession: DeviceSessions = {
+        deviceId,
+        ip,
+        title,
+        lastActiveDate,
+        expiresDate,
+      };
+      this.sigIn = true;
+      //delete expired sessions
+      this.deviceSessions = this.deviceSessions.filter(
+        (s) => s.expiresDate > +new Date(),
       );
-    } else {
       this.deviceSessions.push(deviceSession);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
     }
   }
 
   async validateDeviceSession(deviceId: string, lastActiveDate: number) {
-    console.log('validateDeviceSession input');
-    console.log(lastActiveDate);
+    //delete expired sessions
     this.deviceSessions = this.deviceSessions.filter(
-      (s) => +s.expiresDate > +new Date(),
+      (s) => s.expiresDate > +new Date(),
     );
+    if (this.deviceSessions.length === 0) {
+      this.sigIn = false;
+    }
     const deviceSession = this.deviceSessions.find(
       (s) => s.deviceId === deviceId,
     );
-    return !!deviceSession && +deviceSession.lastActiveDate === lastActiveDate;
+    return !!deviceSession && deviceSession.lastActiveDate === lastActiveDate;
   }
 
   async logout(deviceId: string) {
-    this.sigIn = false;
     this.deviceSessions = this.deviceSessions.filter(
       (s) => s.deviceId !== deviceId,
     );
+    if (this.deviceSessions.length === 0) {
+      this.sigIn = false;
+    }
   }
 
   async initialize(userDto: UserInputModel, isConfirmed?: boolean) {
@@ -182,9 +179,15 @@ export class User {
     };
   }
 
-  async refreshTokens(deviceId: string, expiresDate: Date) {
+  async refreshTokens(
+    deviceId: string,
+    expiresDate: number,
+    lastActiveDate: number,
+  ) {
     this.deviceSessions = this.deviceSessions.map((s) =>
-      s.deviceId === deviceId ? { ...s, expiresDate: expiresDate } : s,
+      s.deviceId === deviceId
+        ? { ...s, expiresDate: expiresDate, lastActiveDate: lastActiveDate }
+        : s,
     );
   }
 
@@ -225,6 +228,9 @@ export class User {
     this.deviceSessions = this.deviceSessions.filter(
       (s) => s.deviceId !== deviceId,
     );
+    if (this.deviceSessions.length === 0) {
+      this.sigIn = false;
+    }
   }
 }
 
