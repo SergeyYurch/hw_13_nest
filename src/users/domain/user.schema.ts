@@ -114,6 +114,8 @@ export class User {
     expiresDate: Date,
     lastActiveDate: Date,
   ) {
+    console.log('signIn');
+    console.log(lastActiveDate);
     // const passIsValid = await bcrypt.compare(
     //   password,
     //   this.accountData.passwordHash,
@@ -144,14 +146,16 @@ export class User {
     }
   }
 
-  async validateDeviceSession(deviceId: string, lastActiveDate: Date) {
+  async validateDeviceSession(deviceId: string, lastActiveDate: number) {
+    console.log('validateDeviceSession input');
+    console.log(lastActiveDate);
     this.deviceSessions = this.deviceSessions.filter(
       (s) => s.expiresDate > new Date(),
     );
     const deviceSession = this.deviceSessions.find(
       (s) => s.deviceId === deviceId,
     );
-    return !!deviceSession && deviceSession.lastActiveDate === lastActiveDate;
+    return !!deviceSession && +deviceSession.lastActiveDate === lastActiveDate;
   }
 
   async logout(deviceId: string) {
