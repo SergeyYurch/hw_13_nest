@@ -70,7 +70,7 @@ export class AuthService {
     }
     const deviceIdIsValid = await user.validateDeviceSession(
       jwtPayload.deviceId,
-      new Date(jwtPayload.iat),
+      jwtPayload.iat * 1000,
     );
     if (!deviceIdIsValid) {
       throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
