@@ -1,4 +1,4 @@
-import { PaginatorInputType } from '../../api/inputModels/paginatorInputType';
+import { PaginatorInputType } from '../inputModels/paginatorInputType';
 
 import { v4 as uuidv4 } from 'uuid';
 
