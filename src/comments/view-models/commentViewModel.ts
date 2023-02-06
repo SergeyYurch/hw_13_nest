@@ -1,4 +1,4 @@
-import { LikesInfoViewModel } from './likesInfoViewModel';
+import { LikesInfoViewModel } from '../../common/view-models/likesInfoViewModel';
 
 export interface CommentViewModel {
   id: string;
