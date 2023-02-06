@@ -1,4 +1,4 @@
-import { PostViewModel } from '../query/viewModels/postViewModel';
+import { PostViewModel } from './view-models/postViewModel';
 import { PostInputModel } from './dto/postInputModel';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,8 +6,9 @@ import { Post, PostDocument } from './domain/post.schema';
 import { Model, Types } from 'mongoose';
 import { PostsRepository } from './posts.repository';
 import { Blog, BlogDocument } from '../blogs/domain/blog.schema';
-import { QueryRepository } from '../query/query.repository';
-import { LikeStatusType } from '../api/inputModels/likeInputModel';
+import { LikeStatusType } from '../common/inputModels/likeInputModel';
+import { PostsQueryRepository } from './posts.query.repository';
+import { UsersQueryRepository } from '../users/users.query.repository';
 
 @Injectable()
 export class PostsService {
@@ -15,7 +16,8 @@ export class PostsService {
     @InjectModel(Post.name) private PostModel: Model<PostDocument>,
     @InjectModel(Blog.name) private BlogModel: Model<BlogDocument>,
     private postRepository: PostsRepository,
-    private queryRepository: QueryRepository,
+    private postsQueryRepository: PostsQueryRepository,
+    private usersQueryRepository: UsersQueryRepository,
   ) {}
 
   async createNewPost(postDto: PostInputModel): Promise<PostViewModel | null> {
@@ -25,7 +27,7 @@ export class PostsService {
     createdPost.createdAt = new Date();
     const result = await this.postRepository.save(createdPost);
     if (!postDto) return null;
-    return this.queryRepository.getPostViewModel(result);
+    return this.postsQueryRepository.getPostViewModel(result);
   }
 
   async editPostById(
@@ -54,7 +56,7 @@ export class PostsService {
     likeStatus: LikeStatusType,
   ) {
     const post = await this.PostModel.findById(postId);
-    const { login } = await this.queryRepository.getUserById(userId);
+    const { login } = await this.usersQueryRepository.getUserById(userId);
     post.updateLikeStatus(userId, login, likeStatus);
     await this.postRepository.save(post);
   }
