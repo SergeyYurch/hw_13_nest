@@ -5,31 +5,33 @@ import { Post, PostSchema } from './domain/post.schema';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 import { PostsRepository } from './posts.repository';
-import { QueryModule } from '../query/query.module';
 import { CommentsModule } from '../comments/comments.module';
-import { CommentsService } from '../comments/comments.service';
 import { Comment, CommentSchema } from '../comments/domain/comment.schema';
-import { CommentsRepository } from '../comments/comments.repository';
-import { IsBlogExistConstraint } from './common/blog-validate';
+import { IsBlogExistConstraint } from './common/blog-id-validate';
+import { PostsQueryRepository } from './posts.query.repository';
+import { User, UserSchema } from '../users/domain/user.schema';
+import { UsersModule } from '../users/users.module';
+import { BlogsQueryRepository } from '../blogs/blogs.query.repository';
 
 @Module({
   imports: [
-    QueryModule,
     CommentsModule,
+    UsersModule,
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [PostsController],
   providers: [
     PostsService,
     PostsRepository,
-    CommentsService,
-    CommentsRepository,
+    PostsQueryRepository,
+    BlogsQueryRepository,
     IsBlogExistConstraint,
   ],
-  exports: [PostsService],
+  exports: [PostsService, PostsQueryRepository],
 })
 export class PostsModule {}
