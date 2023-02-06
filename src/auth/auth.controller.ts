@@ -12,32 +12,36 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { LoginInputModel } from './dto/loginInputModel';
-import { AuthService } from './auth.service';
+import { AuthService } from './application/auth.service';
 import { Response, Request } from 'express';
-import { AccessTokenGuard } from '../api/guards/access-token.guard';
-import { RefreshTokenGuard } from '../api/guards/refresh-token.guard';
+import { AccessTokenGuard } from './guards/access-token.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { UserInputModel } from '../users/dto/userInputModel';
 import { RegistrationConfirmationCodeInputModel } from './dto/registrationConfirmationCodeInputModel';
 import { RegistrationEmailResendingInputModel } from './dto/registrationEmailResendingInputModel';
 import { PasswordRecoveryInputModel } from './dto/passwordRecoveryInputModel';
 import { NewPasswordRecoveryInputModel } from './dto/newPasswordRecoveryInputModel';
-import { QueryRepository } from '../query/query.repository';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
+import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
+import { JwtPayloadType } from './types/jwt-payload.type';
+import { CommandBus } from '@nestjs/cqrs';
+import { UsersQueryRepository } from '../users/users.query.repository';
+import { CreateNewUserCommand } from '../users/use-cases/create-new-user-use-case';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private queryRepository: QueryRepository,
+    private usersQueryRepository: UsersQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @SkipThrottle()
   @UseGuards(AccessTokenGuard)
   @Get('me')
-  async getAuthInfo(@Req() req: Request) {
-    const { userId } = req.user;
-    const result = await this.queryRepository.getMeInfo(userId);
+  async getAuthInfo(@CurrentUserJwtInfo() { userId }: JwtPayloadType) {
+    const result = await this.usersQueryRepository.getMeInfo(userId);
     if (!result) {
       throw new UnauthorizedException();
     }
@@ -83,12 +87,8 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('X-Forwarded-For') title: string,
     @Res() res: Response,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() { userId, deviceId }: JwtPayloadType,
   ) {
-    const { userId, deviceId } = req.user as {
-      userId: string;
-      deviceId: string;
-    };
     const { accessToken, refreshToken, expiresDate } =
       await this.authService.refreshTokens(userId, deviceId);
     this.getCookiesWithToken(res, refreshToken, expiresDate);
@@ -97,8 +97,8 @@ export class AuthController {
 
   @HttpCode(204)
   @Post('/registration')
-  async registration(@Body() userDto: UserInputModel) {
-    await this.authService.registration(userDto);
+  async registration(@Body() userInputDto: UserInputModel) {
+    await this.commandBus.execute(new CreateNewUserCommand(userInputDto));
   }
 
   @HttpCode(204)
@@ -137,7 +137,7 @@ export class AuthController {
   getCookiesWithToken(res: Response, refreshToken: string, expiresDate) {
     res.cookie('refreshToken', refreshToken, {
       expires: new Date(expiresDate),
-      secure: true,
+      // secure: true,
       httpOnly: true,
     });
   }
