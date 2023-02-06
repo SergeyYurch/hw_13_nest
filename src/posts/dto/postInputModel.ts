@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { IsBlogExist } from '../common/blog-validate';
+import { IsBlogExist } from '../common/blog-id-validate';
 import { Transform } from 'class-transformer';
 
 export class PostInputModel {
