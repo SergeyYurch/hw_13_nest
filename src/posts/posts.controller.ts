@@ -14,23 +14,25 @@ import {
   Req,
 } from '@nestjs/common';
 import { PostInputModel } from './dto/postInputModel';
-import { QueryRepository } from '../query/query.repository';
 import { PostsService } from './posts.service';
-import { PaginatorInputType } from '../api/inputModels/paginatorInputType';
-import { castQueryParams } from '../infrastructure/helpers/helpers';
-import { PostViewModel } from '../query/viewModels/postViewModel';
-import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
-import { LikeInputModel } from '../api/inputModels/likeInputModel';
-import { AccessTokenGuard } from '../api/guards/access-token.guard';
+import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
+import { castQueryParams } from '../common/helpers/helpers';
+import { PostViewModel } from './view-models/postViewModel';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
+import { LikeInputModel } from '../common/inputModels/likeInputModel';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { CommentsService } from '../comments/comments.service';
 import { CommentInputModel } from '../comments/dto/commentInputModel';
+import { PostsQueryRepository } from './posts.query.repository';
+import { CommentsQueryRepository } from '../comments/comments.query.repository';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private queryRepository: QueryRepository,
+    private postsQueryRepository: PostsQueryRepository,
+    private commentsQueryRepository: CommentsQueryRepository,
     private postsService: PostsService,
     private commentService: CommentsService,
   ) {}
@@ -44,7 +46,7 @@ export class PostsController {
     @Req() req: Request,
   ) {
     const userId = req.user.userId;
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
 
@@ -63,12 +65,12 @@ export class PostsController {
     @Req() req: Request,
     @Query() query: PaginatorInputType,
   ) {
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
     const paginatorParams = castQueryParams(query);
     const userId = req.user?.userId;
-    return this.queryRepository.getCommentsByPostId(
+    return this.commentsQueryRepository.getCommentsByPostId(
       paginatorParams,
       postId,
       userId,
@@ -82,7 +84,7 @@ export class PostsController {
     @Body() commentDto: CommentInputModel,
     @Req() req: Request,
   ) {
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
     const userId = req.user?.userId;
@@ -97,7 +99,11 @@ export class PostsController {
   async findPosts(@Query() query: PaginatorInputType, @Req() req: Request) {
     const paginatorParams = castQueryParams(query);
     const userId = req.user?.userId;
-    return await this.queryRepository.findPosts(paginatorParams, null, userId);
+    return await this.postsQueryRepository.findPosts(
+      paginatorParams,
+      null,
+      userId,
+    );
   }
 
   @Get(':postId')
@@ -105,11 +111,11 @@ export class PostsController {
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Req() req: Request,
   ) {
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
     const userId = req.user?.userId;
-    return await this.queryRepository.getPostById(postId, userId);
+    return await this.postsQueryRepository.getPostById(postId, userId);
   }
 
   @UseGuards(AuthGuard('basic'))
@@ -129,7 +135,7 @@ export class PostsController {
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Body() postChanges: PostInputModel,
   ) {
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
     return await this.postsService.editPostById(postId, postChanges);
@@ -139,7 +145,7 @@ export class PostsController {
   @Delete(':postId')
   @HttpCode(204)
   async deletePost(@Param('postId', ValidateObjectIdTypePipe) postId: string) {
-    if (!(await this.queryRepository.checkPostId(postId))) {
+    if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
     return await this.postsService.deletePostById(postId);
