@@ -11,19 +11,21 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { castQueryParams } from '../infrastructure/helpers/helpers';
-import { QueryRepository } from '../query/query.repository';
+import { castQueryParams } from '../common/helpers/helpers';
 import { UserInputModel } from './dto/userInputModel';
-import { UsersService } from './users.service';
-import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
 import { AuthGuard } from '@nestjs/passport';
+import { UsersQueryRepository } from './users.query.repository';
+import { CreateNewUserCommand } from './use-cases/create-new-user-use-case';
+import { DeleteUserCommand } from './use-cases/delete-user-use-case';
+import { CommandBus } from '@nestjs/cqrs';
 
 @UseGuards(AuthGuard('basic'))
 @Controller('users')
 export class UsersController {
   constructor(
-    private queryRepository: QueryRepository,
-    private usersService: UsersService,
+    private commandBus: CommandBus,
+    private usersQueryRepository: UsersQueryRepository,
   ) {}
 
   @Get()
@@ -33,7 +35,7 @@ export class UsersController {
     @Query() query,
   ) {
     const paginatorParams = castQueryParams(query);
-    return await this.queryRepository.findUsers(
+    return await this.usersQueryRepository.findUsers(
       paginatorParams,
       searchLoginTerm,
       searchEmailTerm,
@@ -42,16 +44,18 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() userInputDto: UserInputModel) {
-    return await this.usersService.createNewUser(userInputDto, true);
+    return await this.commandBus.execute(
+      new CreateNewUserCommand(userInputDto, true),
+    );
   }
 
   @Delete(':userId')
   @HttpCode(204)
   async deleteBlog(@Param('userId', ValidateObjectIdTypePipe) userId: string) {
-    if (!(await this.queryRepository.checkUserId(userId))) {
+    if (!(await this.usersQueryRepository.checkUserId(userId))) {
       throw new NotFoundException('Invalid blogId');
     }
-    const result = await this.usersService.deleteUser(userId);
+    const result = await this.commandBus.execute(new DeleteUserCommand(userId));
     if (!result) {
       throw new InternalServerErrorException('Blog not deleted');
     }
