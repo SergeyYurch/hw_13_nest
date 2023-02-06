@@ -10,60 +10,66 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { BlogInputModel } from './dto/blogInputModel';
-import { castQueryParams } from '../infrastructure/helpers/helpers';
-import { QueryRepository } from '../query/query.repository';
-import { PaginatorInputType } from '../api/inputModels/paginatorInputType';
-import { PostViewModel } from '../query/viewModels/postViewModel';
-import { PaginatorView } from '../query/viewModels/paginatorView';
+import { castQueryParams } from '../common/helpers/helpers';
+import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
+import { PostViewModel } from '../posts/view-models/postViewModel';
+import { PaginatorView } from '../common/view-models/paginatorView';
 import { BlogPostInputModel } from './dto/blogPostInputModel';
 import { PostsService } from '../posts/posts.service';
 import { PostInputModel } from '../posts/dto/postInputModel';
-import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
 import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
+import { JwtPayloadType } from '../auth/types/jwt-payload.type';
+import { BlogsQueryRepository } from './blogs.query.repository';
+import { PostsQueryRepository } from '../posts/posts.query.repository';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '../common/enums/role.enum';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
     private blogsService: BlogsService,
     private postService: PostsService,
-    private queryRepository: QueryRepository,
+    private blogsQueryRepository: BlogsQueryRepository,
+    private postsQueryRepository: PostsQueryRepository,
   ) {}
+
   @Get()
   async getBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null = null,
     @Query() query,
   ) {
     const paginatorParams = castQueryParams(query);
-    return await this.queryRepository.findBlogs(
+    return await this.blogsQueryRepository.findBlogs(
       paginatorParams,
       searchNameTerm,
     );
   }
-
-  @UseGuards(AuthGuard('basic'))
-  @Post()
-  async createBlog(@Body() blog: BlogInputModel) {
-    return await this.blogsService.createNewBlog(blog);
-  }
+  //
+  // @UseGuards(AuthGuard('basic'))
+  // @Roles(Role.Blogger)
+  // @Post()
+  // async createBlog(@Body() blog: BlogInputModel) {
+  //   return await this.blogsService.createNewBlog(blog);
+  // }
 
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Query() query: PaginatorInputType,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ): Promise<PaginatorView<PostViewModel>> {
-    if (!(await this.queryRepository.checkBlogId(blogId))) {
+    if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
-    const userId = req.user.userId;
+    const userId = userInfo.userId;
     const paginatorParams = castQueryParams(query);
-    return await this.queryRepository.findPosts(
+    return await this.postsQueryRepository.findPosts(
       paginatorParams,
       blogId,
       userId,
@@ -76,7 +82,7 @@ export class BlogsController {
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Body() blogPostDto: BlogPostInputModel,
   ): Promise<PostViewModel> {
-    if (!(await this.queryRepository.checkBlogId(blogId))) {
+    if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
     const createdPost: PostInputModel = {
@@ -90,37 +96,37 @@ export class BlogsController {
 
   @Get(':blogId')
   async getBlog(@Param('blogId', ValidateObjectIdTypePipe) blogId: string) {
-    const blog = await this.queryRepository.getBlogById(blogId);
+    const blog = await this.blogsQueryRepository.getBlogById(blogId);
     if (!blog) {
       throw new NotFoundException('Invalid blogId');
     }
     return blog;
   }
 
-  @UseGuards(AuthGuard('basic'))
-  @Put(':blogId')
-  @HttpCode(204)
-  async editBlog(
-    @Param('blogId') blogId: string,
-    @Body() changes: BlogInputModel,
-  ) {
-    if (!(await this.queryRepository.checkBlogId(blogId))) {
-      throw new NotFoundException('Invalid blogId');
-    }
-    return await this.blogsService.editBlog(blogId, changes);
-  }
+  // @UseGuards(AuthGuard('basic'))
+  // @Put(':blogId')
+  // @HttpCode(204)
+  // async editBlog(
+  //   @Param('blogId') blogId: string,
+  //   @Body() changes: BlogInputModel,
+  // ) {
+  //   if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
+  //     throw new NotFoundException('Invalid blogId');
+  //   }
+  //   return await this.blogsService.editBlog(blogId, changes);
+  // }
 
-  @UseGuards(AuthGuard('basic'))
-  @Delete(':blogId')
-  @HttpCode(204)
-  async deleteBlog(@Param('blogId', ValidateObjectIdTypePipe) blogId: string) {
-    if (!(await this.queryRepository.checkBlogId(blogId))) {
-      throw new NotFoundException('Invalid blogId');
-    }
-    const result = await this.blogsService.deleteBlog(blogId);
-    if (!result) {
-      throw new InternalServerErrorException('Blog not deleted');
-    }
-    return;
-  }
+  // @UseGuards(AuthGuard('basic'))
+  // @Delete(':blogId')
+  // @HttpCode(204)
+  // async deleteBlog(@Param('blogId', ValidateObjectIdTypePipe) blogId: string) {
+  //   if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
+  //     throw new NotFoundException('Invalid blogId');
+  //   }
+  //   const result = await this.blogsService.deleteBlog(blogId);
+  //   if (!result) {
+  //     throw new InternalServerErrorException('Blog not deleted');
+  //   }
+  //   return;
+  // }
 }
