@@ -4,17 +4,19 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { QueryRepository } from '../../query/query.repository';
 import { Injectable } from '@nestjs/common';
+import { UsersQueryRepository } from '../users.query.repository';
 
 @ValidatorConstraint({ name: 'loginOrEmail', async: true })
 @Injectable()
 export class IsUniqLoginOrEmailConstraint
   implements ValidatorConstraintInterface
 {
-  constructor(protected readonly queryRepository: QueryRepository) {}
+  constructor(protected readonly usersQueryRepository: UsersQueryRepository) {}
   async validate(loginOrEmail: string) {
-    return !(await this.queryRepository.findUserByLoginOrEmail(loginOrEmail));
+    return !(await this.usersQueryRepository.findUserByLoginOrEmail(
+      loginOrEmail,
+    ));
   }
 }
 
