@@ -3,30 +3,28 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { QueryRepository } from '../query/query.repository';
 import {
   EMAIL_CONFIRMATION_MESSAGE,
   EMAIL_RESENDING_MESSAGE,
   PASSWORD_RECOVERY_CODE_MESSAGE,
   PASSWORD_RECOVERY_MESSAGE,
   UNAUTHORIZED_MESSAGE,
-} from './auth.constant';
+} from '../auth.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Model, Types } from 'mongoose';
-import { UsersRepository } from '../users/users.repository';
-import { JwtPayloadType } from './types/jwt-payload.type';
+import { UsersRepository } from '../../users/users.repository';
+import { JwtPayloadType } from '../types/jwt-payload.type';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../users/domain/user.schema';
-import { UsersService } from '../users/users.service';
-import { UserInputModel } from '../users/dto/userInputModel';
-import { MailService } from '../infrastructure/mail.service/mail.service';
+import { User, UserDocument } from '../../users/domain/user.schema';
+import { UsersService } from '../../users/users.service';
+import { UserInputModel } from '../../users/dto/userInputModel';
+import { MailService } from '../../common/mail.service/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
-    private queryRepository: QueryRepository,
     private userRepository: UsersRepository,
     private usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -139,9 +137,9 @@ export class AuthService {
     return { accessToken, refreshToken, expiresDate };
   }
 
-  async registration(userDto: UserInputModel) {
-    return await this.usersService.createNewUser(userDto);
-  }
+  // async registration(userDto: UserInputModel) {
+  //   return await this.usersService.createNewUser(userDto);
+  // }
 
   async registrationConfirmation(code: string) {
     const user = await this.UserModel.findOne({
