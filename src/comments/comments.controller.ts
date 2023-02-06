@@ -2,41 +2,39 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   NotFoundException,
   Param,
   Put,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { QueryRepository } from '../query/query.repository';
 import { CommentsService } from './comments.service';
-import { ValidateObjectIdTypePipe } from '../api/pipes/validateObjectIdType.pipe';
-import { Request } from 'express';
-import { AccessTokenGuard } from '../api/guards/access-token.guard';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CommentInputModel } from './dto/commentInputModel';
-import { LikeInputModel } from '../api/inputModels/likeInputModel';
+import { LikeInputModel } from '../common/inputModels/likeInputModel';
+import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
+import { JwtPayloadType } from '../auth/types/jwt-payload.type';
+import { CommentsQueryRepository } from './comments.query.repository';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
-    private queryRepository: QueryRepository,
+    private commentsQueryRepository: CommentsQueryRepository,
     private commentService: CommentsService,
   ) {}
 
-  //{host}
   @Get(':commentId')
   async getCommentsForPost(
     @Param('commentId', ValidateObjectIdTypePipe) commentId: string,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ) {
-    if (!(await this.queryRepository.checkCommentId(commentId))) {
+    if (!(await this.commentsQueryRepository.checkCommentId(commentId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user?.userId;
-    return this.queryRepository.getCommentsById(commentId, userId);
+    const userId = userInfo?.userId;
+    return this.commentsQueryRepository.getCommentsById(commentId, userId);
   }
 
   @UseGuards(AccessTokenGuard)
@@ -44,12 +42,12 @@ export class CommentsController {
   @Delete(':commentId')
   async delete(
     @Param('commentId', ValidateObjectIdTypePipe) commentId: string,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ) {
-    if (!(await this.queryRepository.checkCommentId(commentId))) {
+    if (!(await this.commentsQueryRepository.checkCommentId(commentId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user.userId;
+    const userId = userInfo.userId;
     await this.commentService.validateOwner(commentId, userId);
 
     await this.commentService.deleteComment(commentId);
@@ -61,12 +59,12 @@ export class CommentsController {
   async update(
     @Param('commentId', ValidateObjectIdTypePipe) commentId: string,
     @Body() commentDto: CommentInputModel,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ) {
-    if (!(await this.queryRepository.checkCommentId(commentId))) {
+    if (!(await this.commentsQueryRepository.checkCommentId(commentId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user.userId;
+    const userId = userInfo.userId;
     await this.commentService.validateOwner(commentId, userId);
     await this.commentService.updateComment(commentId, commentDto, userId);
   }
@@ -77,12 +75,12 @@ export class CommentsController {
   async updateLikeStatus(
     @Param('commentId', ValidateObjectIdTypePipe) commentId: string,
     @Body() likeDto: LikeInputModel,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ) {
-    if (!(await this.queryRepository.checkCommentId(commentId))) {
+    if (!(await this.commentsQueryRepository.checkCommentId(commentId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user.userId;
+    const userId = userInfo.userId;
     return this.commentService.updateLikeStatus(
       commentId,
       userId,
