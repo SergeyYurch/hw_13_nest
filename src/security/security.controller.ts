@@ -8,8 +8,10 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { SecurityService } from './security.service';
-import { RefreshTokenGuard } from '../api/guards/refresh-token.guard';
+import { RefreshTokenGuard } from '../auth/guards/refresh-token.guard';
 import { Request } from 'express';
+import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
+import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 
 @UseGuards(RefreshTokenGuard)
 @Controller('security')
@@ -37,9 +39,9 @@ export class SecurityController {
   @Delete('devices/:deviceId')
   async deleteDeviceSession(
     @Param('deviceId') deviceId: string,
-    @Req() req: Request,
+    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
   ) {
-    const { userId } = req.user;
+    const { userId } = userInfo;
     await this.securityService.deleteSessionById(deviceId, userId);
   }
 }
