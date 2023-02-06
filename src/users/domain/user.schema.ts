@@ -6,7 +6,7 @@ import {
   getConfirmationCode,
   getConfirmationEmailExpirationDate,
   getPasswordRecoveryCodeExpirationDate,
-} from '../../infrastructure/helpers/helpers';
+} from '../../common/helpers/helpers';
 
 @Schema()
 export class AccountData {
