@@ -1,27 +1,29 @@
-import { QueryRepository } from '../query/query.repository';
 import { CommentsRepository } from './comments.repository';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Comment, CommentDocument } from './domain/comment.schema';
 import { CommentInputModel } from './dto/commentInputModel';
-import { LikeStatusType } from '../api/inputModels/likeInputModel';
+import { LikeStatusType } from '../common/inputModels/likeInputModel';
+import { CommentsQueryRepository } from './comments.query.repository';
+import { UsersQueryRepository } from '../users/users.query.repository';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectModel(Comment.name) private CommentModel: Model<CommentDocument>,
-    protected queryRepository: QueryRepository,
+    protected commentsQueryRepository: CommentsQueryRepository,
+    protected usersQueryRepository: UsersQueryRepository,
     protected commentsRepository: CommentsRepository,
   ) {}
 
   async createComment(content: string, userId: string, postId: string) {
-    const { login } = await this.queryRepository.getUserById(userId);
+    const { login } = await this.usersQueryRepository.getUserById(userId);
     const createdComment = new this.CommentModel();
     createdComment.initial(content, userId, login, postId);
     await this.commentsRepository.save(createdComment);
     const comment = await this.commentsRepository.save(createdComment);
-    return this.queryRepository.getCommentViewModel(comment);
+    return this.commentsQueryRepository.getCommentViewModel(comment);
   }
 
   async validateOwner(commentId, userId) {
