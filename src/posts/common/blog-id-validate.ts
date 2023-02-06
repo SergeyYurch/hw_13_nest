@@ -4,15 +4,15 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { QueryRepository } from '../../query/query.repository';
 import { Injectable } from '@nestjs/common';
+import { BlogsQueryRepository } from '../../blogs/blogs.query.repository';
 
 @ValidatorConstraint({ name: 'blogId', async: true })
 @Injectable()
 export class IsBlogExistConstraint implements ValidatorConstraintInterface {
-  constructor(protected readonly queryRepository: QueryRepository) {}
+  constructor(protected readonly blogsQueryRepository: BlogsQueryRepository) {}
   async validate(blogId: string) {
-    return await this.queryRepository.checkBlogId(blogId);
+    return await this.blogsQueryRepository.checkBlogId(blogId);
   }
 }
 
