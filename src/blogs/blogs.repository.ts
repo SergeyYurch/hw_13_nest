@@ -15,7 +15,7 @@ export class BlogsRepository {
     return new this.BlogModel();
   }
 
-  async deleteBlog(blogId) {
+  async deleteBlog(blogId: string) {
     const result = await this.BlogModel.deleteOne({
       _id: new Types.ObjectId(blogId),
     });
@@ -23,6 +23,7 @@ export class BlogsRepository {
   }
 
   async save(blog): Promise<Blog> {
-    return blog.save();
+    const newBlog = await blog.save();
+    return newBlog?._id?.toString();
   }
 }
