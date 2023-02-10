@@ -1,19 +1,14 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
-import { BlogInputModel } from './dto/blogInputModel';
 import { castQueryParams } from '../common/helpers/helpers';
 import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
 import { PostViewModel } from '../posts/view-models/postViewModel';
@@ -27,8 +22,6 @@ import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.deco
 import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 import { BlogsQueryRepository } from './blogs.query.repository';
 import { PostsQueryRepository } from '../posts/posts.query.repository';
-import { Roles } from '../auth/roles.decorator';
-import { Role } from '../common/enums/role.enum';
 
 @Controller('blogs')
 export class BlogsController {
