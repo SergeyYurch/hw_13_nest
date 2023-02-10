@@ -30,10 +30,22 @@ export class UsersQueryRepository {
     return this.getUserViewModel(user);
   }
 
+  async getEmailConfirmationData(userId: string) {
+    const user = await this.UserModel.findById(userId);
+    if (!user) return null;
+    return {
+      email: user.accountData.email,
+      confirmationCode: user.emailConfirmation.confirmationCode,
+      expirationDate: user.emailConfirmation.expirationDate,
+    };
+  }
+
   async findUsers(
     paginatorParams: PaginatorInputType,
-    searchLoginTerm: string,
-    searchEmailTerm: string,
+    searchLoginTerm?: string,
+    searchEmailTerm?: string,
+    banStatus?: string,
+    forSa = false,
   ) {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
     const searchQuery = [];
@@ -46,13 +58,19 @@ export class UsersQueryRepository {
       searchQuery.push({
         'accountData.email': new RegExp(searchEmailTerm, 'i'),
       });
+    if (banStatus)
+      searchQuery.push({
+        'banInfo.isBanned': true,
+      });
     if (searchQuery.length > 0) filter = { $or: searchQuery };
     const totalCount = await this.UserModel.countDocuments(filter);
     const result = await this.UserModel.find(filter)
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .sort({ [`accountData.${sortBy}`]: sortDirection });
-    const items: UserViewModel[] = result.map((u) => this.getUserViewModel(u));
+    const items: UserViewModel[] = result.map((u) =>
+      forSa ? this.getUserSaViewModel(u) : this.getUserViewModel(u),
+    );
     return {
       pagesCount: pagesCount(totalCount, pageSize),
       page: pageNumber,
@@ -70,6 +88,21 @@ export class UsersQueryRepository {
       createdAt: user.accountData.createdAt.toISOString(),
     };
   }
+
+  private getUserSaViewModel(user: User) {
+    return {
+      id: user._id.toString(),
+      email: user.accountData.email,
+      login: user.accountData.login,
+      createdAt: user.accountData.createdAt.toISOString(),
+      banInfo: {
+        isBanned: user.banInfo.isBanned,
+        banDate: user.banInfo.banDate?.toISOString() || null,
+        banReason: user.banInfo.banReason,
+      },
+    };
+  }
+
   async getMeInfo(userId: string) {
     const user = await this.UserModel.findById(userId);
     if (!user) return null;
