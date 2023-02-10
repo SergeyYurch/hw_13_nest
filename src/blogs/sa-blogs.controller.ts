@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Body,
   Controller,
   Get,
   HttpCode,
@@ -11,13 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
-import { BlogInputModel } from './dto/blogInputModel';
 import { castQueryParams } from '../common/helpers/helpers';
 import { PostsService } from '../posts/posts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { BlogsQueryRepository } from './blogs.query.repository';
 import { UsersQueryRepository } from '../users/users.query.repository';
-import { WRONG_BLOG_ID, WRONG_USER_ID } from './blogs.constant';
+import { WRONG_BLOG_ID } from './blogs.constant';
 import { CommandBus } from '@nestjs/cqrs';
 import { BindBlogWithUserCommand } from './use-cases/bind-blog-with-user-use-case';
 
@@ -53,15 +51,16 @@ export class SaBlogsController {
     @Param('userId') userId: string,
   ) {
     const errors = [];
-    const blogOwner = await this.blogsQueryRepository.getBlogOwner(blogId);
-    if (
-      blogOwner?.userId ||
-      !(await this.blogsQueryRepository.checkBlogId(blogId))
-    ) {
-      errors.push({ message: WRONG_BLOG_ID, field: 'id' });
+    if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
+      throw new NotFoundException('Invalid blogId');
     }
+
     if (!(await this.usersQueryRepository.checkUserId(userId))) {
-      errors.push({ message: WRONG_USER_ID, field: 'userId' });
+      throw new NotFoundException('Invalid user id');
+    }
+    const blogOwner = await this.blogsQueryRepository.getBlogOwner(blogId);
+    if (!blogOwner || blogOwner.userId) {
+      errors.push({ message: WRONG_BLOG_ID, field: 'id' });
     }
     if (errors.length > 0) throw new BadRequestException(errors);
     await this.commandBus.execute(new BindBlogWithUserCommand(blogId, userId));
