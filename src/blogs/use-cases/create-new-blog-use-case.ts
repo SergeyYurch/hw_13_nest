@@ -23,7 +23,6 @@ export class CreateNewBlogUseCase
     const login = (await this.usersQueryRepository.getUserById(userId)).login;
     const createdBlog = await this.blogRepository.createBlogModel();
     createdBlog.initial(inputBlogDto, userId, login);
-    const newBlog = await this.blogRepository.save(createdBlog);
-    return this.blogsQueryRepository.getBlogById(newBlog._id.toString());
+    return await this.blogRepository.save(createdBlog);
   }
 }
