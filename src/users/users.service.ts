@@ -1,42 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { UsersRepository } from './users.repository';
-import { User, UserDocument } from './domain/user.schema';
-import { MailService } from '../common/mail.service/mail.service';
-import { UsersQueryRepository } from './users.query.repository';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name) private UserModel: Model<UserDocument>,
-    private readonly userRepository: UsersRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly mailService: MailService,
-  ) {}
+  async getPasswordSalt() {
+    return await bcrypt.genSalt(10);
+  }
 
-  // async createNewUser(
-  //   userDto: UserInputModel,
-  //   isConfirmed?: boolean,
-  // ): Promise<UserViewModel | null> {
-  //   const createdUser = new this.UserModel();
-  //   await createdUser.initialize(userDto, isConfirmed);
-  //   const user = await this.userRepository.save(createdUser);
-  //   if (!user) return null;
-  //   if (!isConfirmed) {
-  //     await this.mailService.sendConfirmationEmail(
-  //       user.accountData.email,
-  //       user.emailConfirmation.confirmationCode,
-  //     );
-  //   }
-  //   console.log(`${new Date()}user ${userDto.login} is register`);
-  //   return this.usersQueryRepository.getUserViewModel(user);
-  // }
-
-  async deleteUser(userId: string): Promise<boolean> {
-    const result = await this.UserModel.deleteOne({
-      _id: new Types.ObjectId(userId),
-    });
-    return result.deletedCount === 1;
+  async getPasswordHash(password: string, passwordSalt: string) {
+    return await bcrypt.hash(password, passwordSalt);
   }
 }
