@@ -17,7 +17,7 @@ export class CommentsQueryRepository {
     return !!(await this.CommentModel.findById(commentId));
   }
 
-  async getCommentsById(commentId: string, userId?: string) {
+  async getCommentById(commentId: string, userId?: string) {
     const comment = await this.CommentModel.findById(commentId);
     if (!comment) return null;
     return this.getCommentViewModel(comment, userId);
