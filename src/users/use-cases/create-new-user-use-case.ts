@@ -1,39 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../domain/user.schema';
-import { Model } from 'mongoose';
 import { UsersRepository } from '../users.repository';
-import { UsersQueryRepository } from '../users.query.repository';
-import { MailService } from '../../common/mail.service/mail.service';
 import { UserInputModel } from '../dto/userInputModel';
-import { UserViewModel } from '../view-models/userViewModel';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { UserCreatDto } from '../dto/userCreatDto';
+import { UsersService } from '../users.service';
 
 export class CreateNewUserCommand {
-  constructor(public userDto: UserInputModel, public isConfirmed?: boolean) {}
+  constructor(public userInputModel: UserInputModel) {}
 }
 
+@Injectable()
 @CommandHandler(CreateNewUserCommand)
 export class CreateNewUserUseCase
   implements ICommandHandler<CreateNewUserCommand>
 {
   constructor(
-    @InjectModel(User.name) private UserModel: Model<UserDocument>,
-    private readonly userRepository: UsersRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly mailService: MailService,
+    private readonly usersRepository: UsersRepository,
+    private readonly usersService: UsersService,
   ) {}
-  async execute(command: CreateNewUserCommand): Promise<UserViewModel | null> {
-    const createdUser = new this.UserModel();
-    await createdUser.initialize(command.userDto, command.isConfirmed);
-    const user = await this.userRepository.save(createdUser);
-    if (!user) return null;
-    if (!command.isConfirmed) {
-      await this.mailService.sendConfirmationEmail(
-        user.accountData.email,
-        user.emailConfirmation.confirmationCode,
-      );
-    }
-    return this.usersQueryRepository.getUserViewModel(user);
+  async execute(command: CreateNewUserCommand) {
+    const { userInputModel } = command;
+    const { login, email, password } = userInputModel;
+    const passwordSalt = await this.usersService.getPasswordSalt();
+    const passwordHash = await this.usersService.getPasswordHash(
+      password,
+      passwordSalt,
+    );
+    const user: UserCreatDto = {
+      login,
+      email,
+      passwordSalt,
+      passwordHash,
+      isConfirmed: true,
+    };
+    const userModel = await this.usersRepository.createUserModel();
+    await userModel.initialize(user);
+    return await this.usersRepository.save(userModel);
   }
 }
