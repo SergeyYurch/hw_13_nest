@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { UserInputModel } from '../dto/userInputModel';
 import {
   getConfirmationCode,
   getConfirmationEmailExpirationDate,
   getPasswordRecoveryCodeExpirationDate,
 } from '../../common/helpers/helpers';
+import { UserCreatDto } from '../dto/userCreatDto';
 
 @Schema()
 export class AccountData {
@@ -28,10 +28,10 @@ export class AccountData {
 
 @Schema()
 export class EmailConfirmation {
-  @Prop()
+  @Prop({ required: false })
   confirmationCode: string;
 
-  @Prop()
+  @Prop({ required: false })
   expirationDate: Date;
 
   @Prop({ default: false })
@@ -64,31 +64,41 @@ export class DeviceSessions {
   expiresDate: number;
 }
 
+@Schema()
+export class BanInfo {
+  @Prop({ default: false })
+  isBanned: boolean;
+  @Prop()
+  banDate: Date | null;
+  @Prop()
+  banReason: string | null;
+  @Prop()
+  sa: string | null;
+}
+
 const AccountDataSchema = SchemaFactory.createForClass(AccountData);
 const EmailConfirmationSchema = SchemaFactory.createForClass(EmailConfirmation);
 const PasswordRecoveryInformationSchema = SchemaFactory.createForClass(
   PasswordRecoveryInformation,
 );
 const DeviceSessionsSchema = SchemaFactory.createForClass(DeviceSessions);
+const BanInfoSchema = SchemaFactory.createForClass(BanInfo);
 
 @Schema()
 export class User {
   _id: Types.ObjectId;
-
   @Prop({ default: false })
   sigIn: boolean;
-
   @Prop({ type: AccountDataSchema, required: true, _id: false })
   accountData: AccountData;
-
   @Prop({ type: EmailConfirmationSchema, required: true, _id: false })
   emailConfirmation: EmailConfirmation;
-
   @Prop({ type: PasswordRecoveryInformationSchema, default: null, _id: false })
   passwordRecoveryInformation: null | PasswordRecoveryInformation;
-
   @Prop({ type: [DeviceSessionsSchema], default: [], _id: false })
   deviceSessions: DeviceSessions[];
+  @Prop({ type: BanInfoSchema, default: null, _id: false })
+  banInfo: null | BanInfo;
 
   async setPasswordHash(password: string) {
     this.accountData.passwordSalt = await bcrypt.genSalt(10);
@@ -98,12 +108,11 @@ export class User {
     );
   }
 
-  async validateCredentials(password: string) {
-    const passIsValid = await bcrypt.compare(
-      password,
-      this.accountData.passwordHash,
+  async validateCredentials(passwordHash: string) {
+    return (
+      passwordHash === this.accountData.passwordHash &&
+      this.emailConfirmation.isConfirmed
     );
-    return passIsValid && this.emailConfirmation.isConfirmed;
   }
 
   async signIn(
@@ -162,20 +171,32 @@ export class User {
     }
   }
 
-  async initialize(userDto: UserInputModel, isConfirmed?: boolean) {
-    const passwordSalt = await bcrypt.genSalt(10);
+  async initialize(userDto: UserCreatDto) {
     this.accountData = {
       login: userDto.login,
       email: userDto.email,
-      passwordSalt,
-      passwordHash: await bcrypt.hash(userDto.password, passwordSalt),
+      passwordSalt: userDto.passwordSalt,
+      passwordHash: userDto.passwordHash,
       createdAt: new Date(),
     };
-    this.emailConfirmation = {
-      confirmationCode: getConfirmationCode(),
-      expirationDate: getConfirmationEmailExpirationDate(),
-      isConfirmed: !!isConfirmed,
-      dateSendingConfirmEmail: [new Date()],
+    this.emailConfirmation = userDto.isConfirmed
+      ? {
+          confirmationCode: undefined,
+          expirationDate: undefined,
+          isConfirmed: true,
+          dateSendingConfirmEmail: [],
+        }
+      : {
+          confirmationCode: getConfirmationCode(),
+          expirationDate: getConfirmationEmailExpirationDate(),
+          isConfirmed: false,
+          dateSendingConfirmEmail: [new Date()],
+        };
+    this.banInfo = {
+      isBanned: false,
+      banReason: null,
+      banDate: null,
+      sa: '',
     };
   }
 
@@ -207,6 +228,7 @@ export class User {
     this.emailConfirmation.confirmationCode = getConfirmationCode();
     this.emailConfirmation.expirationDate =
       getConfirmationEmailExpirationDate();
+    return this.emailConfirmation.confirmationCode;
   }
 
   generateNewPasswordRecoveryCode() {
@@ -214,7 +236,9 @@ export class User {
       recoveryCode: getConfirmationCode(),
       expirationDate: getPasswordRecoveryCodeExpirationDate(),
     };
+    return this.passwordRecoveryInformation.recoveryCode;
   }
+
   getSessions() {
     //delete expired sessions
     this.deviceSessions = this.deviceSessions.filter(
@@ -230,6 +254,7 @@ export class User {
       deviceId: s.deviceId,
     }));
   }
+
   deleteSessionsExclude(deviceId) {
     this.deviceSessions = this.deviceSessions.filter(
       (s) => s.deviceId === deviceId,
@@ -243,6 +268,15 @@ export class User {
     if (this.deviceSessions.length === 0) {
       this.sigIn = false;
     }
+  }
+
+  ban(isBanned, banReason: string, saId: string) {
+    this.banInfo = {
+      isBanned,
+      banDate: new Date(),
+      banReason,
+      sa: saId,
+    };
   }
 }
 
@@ -264,5 +298,6 @@ UserSchema.methods = {
   getSessions: User.prototype.getSessions,
   deleteSessionsExclude: User.prototype.deleteSessionsExclude,
   deleteSession: User.prototype.deleteSession,
+  ban: User.prototype.ban,
 };
 export type UserDocument = HydratedDocument<User>;
