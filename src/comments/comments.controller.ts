@@ -17,12 +17,17 @@ import { LikeInputModel } from '../common/inputModels/likeInputModel';
 import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
 import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 import { CommentsQueryRepository } from './comments.query.repository';
+import { CommandBus } from '@nestjs/cqrs';
+import { DeleteCommentCommand } from './use-cases/delete-comment-use-case';
+import { UpdateCommentCommand } from './use-cases/update-comment-use-case';
+import { UpdateLikeStatusCommand } from './use-cases/update-like-status-use-case';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private commentsQueryRepository: CommentsQueryRepository,
     private commentService: CommentsService,
+    private commandBus: CommandBus,
   ) {}
 
   @Get(':commentId')
@@ -34,7 +39,7 @@ export class CommentsController {
       throw new NotFoundException('Invalid postID');
     }
     const userId = userInfo?.userId;
-    return this.commentsQueryRepository.getCommentsById(commentId, userId);
+    return this.commentsQueryRepository.getCommentById(commentId, userId);
   }
 
   @UseGuards(AccessTokenGuard)
@@ -50,7 +55,7 @@ export class CommentsController {
     const userId = userInfo.userId;
     await this.commentService.validateOwner(commentId, userId);
 
-    await this.commentService.deleteComment(commentId);
+    await this.commandBus.execute(new DeleteCommentCommand(commentId));
   }
 
   @UseGuards(AccessTokenGuard)
@@ -66,7 +71,9 @@ export class CommentsController {
     }
     const userId = userInfo.userId;
     await this.commentService.validateOwner(commentId, userId);
-    await this.commentService.updateComment(commentId, commentDto, userId);
+    await this.commandBus.execute(
+      new UpdateCommentCommand(commentId, commentDto, userId),
+    );
   }
 
   @UseGuards(AccessTokenGuard)
@@ -81,10 +88,8 @@ export class CommentsController {
       throw new NotFoundException('Invalid postID');
     }
     const userId = userInfo.userId;
-    return this.commentService.updateLikeStatus(
-      commentId,
-      userId,
-      likeDto.likeStatus,
+    return this.commandBus.execute(
+      new UpdateLikeStatusCommand(commentId, userId, likeDto.likeStatus),
     );
   }
 }
