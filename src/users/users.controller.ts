@@ -16,15 +16,21 @@ import { UserInputModel } from './dto/userInputModel';
 import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersQueryRepository } from './users.query.repository';
-import { CreateNewUserCommand } from './use-cases/create-new-user-use-case';
+import {
+  CreateNewUserCommand,
+  CreateNewUserUseCase,
+} from './use-cases/create-new-user-use-case';
 import { DeleteUserCommand } from './use-cases/delete-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
+import { UsersService } from './users.service';
 
 @UseGuards(AuthGuard('basic'))
 @Controller('users')
 export class UsersController {
   constructor(
     private commandBus: CommandBus,
+    private userService: UsersService,
+    private createNewUserUseCase: CreateNewUserUseCase,
     private usersQueryRepository: UsersQueryRepository,
   ) {}
 
@@ -44,9 +50,10 @@ export class UsersController {
 
   @Post()
   async createUser(@Body() userInputDto: UserInputModel) {
-    return await this.commandBus.execute(
-      new CreateNewUserCommand(userInputDto, true),
+    const userId = await this.commandBus.execute(
+      new CreateNewUserCommand(userInputDto),
     );
+    return this.usersQueryRepository.getUserById(userId);
   }
 
   @Delete(':userId')
