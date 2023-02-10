@@ -26,7 +26,14 @@ import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.deco
 import { JwtPayloadType } from './types/jwt-payload.type';
 import { CommandBus } from '@nestjs/cqrs';
 import { UsersQueryRepository } from '../users/users.query.repository';
-import { CreateNewUserCommand } from '../users/use-cases/create-new-user-use-case';
+import { SignInCommand } from './application/use-cases/sign-in-use-case';
+import { LogoutCommand } from './application/use-cases/logout-use-case';
+import { RefreshTokenCommand } from './application/use-cases/refresh-token-use-cases';
+import { RegistrationUserCommand } from '../users/use-cases/registration-user-use-case';
+import { RegistrationConfirmationCommand } from './application/use-cases/registration-confirmation-use-case';
+import { RegistrationEmailResendingCommand } from './application/use-cases/registration-email-resending-use-case';
+import { PasswordRecoveryCommand } from './application/use-cases/password-recovery-use-case';
+import { SetNewPasswordCommand } from './application/use-cases/set-new-password-use-case';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -58,14 +65,11 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const { accessToken, refreshToken, expiresDate } =
-      await this.authService.signIn(
-        loginDto.loginOrEmail,
-        loginDto.password,
-        ip,
-        title,
+      await this.commandBus.execute(
+        new SignInCommand(loginDto.loginOrEmail, loginDto.password, ip, title),
       );
 
-    this.getCookiesWithToken(res, refreshToken, expiresDate);
+    this.authService.getCookiesWithToken(res, refreshToken, expiresDate);
     return res.json({ accessToken: accessToken });
   }
 
@@ -75,7 +79,7 @@ export class AuthController {
   @Post('/logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     const { userId, deviceId } = req.user;
-    await this.authService.logout(userId, deviceId);
+    await this.commandBus.execute(new LogoutCommand(userId, deviceId));
     res.clearCookie('refreshToken');
     return res.sendStatus(204);
   }
@@ -90,15 +94,16 @@ export class AuthController {
     @CurrentUserJwtInfo() { userId, deviceId }: JwtPayloadType,
   ) {
     const { accessToken, refreshToken, expiresDate } =
-      await this.authService.refreshTokens(userId, deviceId);
-    this.getCookiesWithToken(res, refreshToken, expiresDate);
+      await this.commandBus.execute(new RefreshTokenCommand(userId, deviceId));
+
+    this.authService.getCookiesWithToken(res, refreshToken, expiresDate);
     return res.status(200).json({ accessToken: accessToken });
   }
 
   @HttpCode(204)
   @Post('/registration')
   async registration(@Body() userInputDto: UserInputModel) {
-    await this.commandBus.execute(new CreateNewUserCommand(userInputDto));
+    await this.commandBus.execute(new RegistrationUserCommand(userInputDto));
   }
 
   @HttpCode(204)
@@ -106,7 +111,9 @@ export class AuthController {
   async registrationConfirmation(
     @Body() codeDto: RegistrationConfirmationCodeInputModel,
   ) {
-    await this.authService.registrationConfirmation(codeDto.code);
+    await this.commandBus.execute(
+      new RegistrationConfirmationCommand(codeDto.code),
+    );
   }
 
   @HttpCode(204)
@@ -114,7 +121,9 @@ export class AuthController {
   async registrationEmailResending(
     @Body() emailResendingDto: RegistrationEmailResendingInputModel,
   ) {
-    await this.authService.registrationEmailResending(emailResendingDto.email);
+    await this.commandBus.execute(
+      new RegistrationEmailResendingCommand(emailResendingDto.email),
+    );
   }
 
   @HttpCode(204)
@@ -122,23 +131,19 @@ export class AuthController {
   async passwordRecovery(
     @Body() passwordRecoveryDto: PasswordRecoveryInputModel,
   ) {
-    await this.authService.passwordRecovery(passwordRecoveryDto.email);
+    await this.commandBus.execute(
+      new PasswordRecoveryCommand(passwordRecoveryDto.email),
+    );
   }
 
   @HttpCode(204)
   @Post('/new-password')
   async newPassword(@Body() newPasswordDto: NewPasswordRecoveryInputModel) {
-    await this.authService.setNewPassword(
-      newPasswordDto.recoveryCode,
-      newPasswordDto.newPassword,
+    await this.commandBus.execute(
+      new SetNewPasswordCommand(
+        newPasswordDto.recoveryCode,
+        newPasswordDto.newPassword,
+      ),
     );
-  }
-
-  getCookiesWithToken(res: Response, refreshToken: string, expiresDate) {
-    res.cookie('refreshToken', refreshToken, {
-      expires: new Date(expiresDate),
-      // secure: true,
-      httpOnly: true,
-    });
   }
 }
