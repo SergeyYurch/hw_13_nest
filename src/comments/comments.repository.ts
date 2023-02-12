@@ -9,8 +9,16 @@ export class CommentsRepository {
     @InjectModel(Comment.name) private CommentModel: Model<CommentDocument>,
   ) {}
 
-  async getCommentModel(id: string) {
+  async getCommentModelById(id: string) {
     return this.CommentModel.findById(id);
+  }
+
+  async getCommentsModelsByUserId(userId: string) {
+    return this.CommentModel.find({ userId });
+  }
+
+  async getCommentsModelsByLikeUserId(userId: string) {
+    return this.CommentModel.find({ 'likes.userId': userId });
   }
 
   async createCommentModel() {
