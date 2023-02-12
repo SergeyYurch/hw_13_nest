@@ -69,6 +69,10 @@ import { RegistrationEmailResendingUseCase } from './auth/application/use-cases/
 import { SetNewPasswordUseCase } from './auth/application/use-cases/set-new-password-use-case';
 import { SignInUseCase } from './auth/application/use-cases/sign-in-use-case';
 import { RefreshTokenUseCases } from './auth/application/use-cases/refresh-token-use-cases';
+import { BanCommentLikesUseCase } from './comments/use-cases/ban-comment-likes-use-case';
+import { BanCommentUseCase } from './comments/use-cases/ban-comment-use-case';
+import { BanPostLikesUseCase } from './posts/use-cases/ban-post-likes-use-case';
+import { BanPostsUseCase } from './posts/use-cases/ban-posts-use-case';
 
 const blogsUseCases = [
   BindBlogWithUserUseCase,
@@ -88,6 +92,8 @@ const postsUseCases = [
   UpdatePostLikeStatusUseCase,
   DeletePostUseCase,
   UpdatePostLikeStatusUseCase,
+  BanPostLikesUseCase,
+  BanPostsUseCase,
 ];
 
 const commentsUseCases = [
@@ -95,6 +101,8 @@ const commentsUseCases = [
   DeleteCommentUseCase,
   UpdateCommentUseCase,
   UpdateLikeStatusUseCase,
+  BanCommentLikesUseCase,
+  BanCommentUseCase,
 ];
 
 const authUseCases = [
