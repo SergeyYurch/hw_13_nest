@@ -10,7 +10,7 @@ export class LikeForPost {
   login: string;
 
   @Prop({ required: false, default: false })
-  userBan: boolean;
+  userIsBanned: boolean;
 
   @Prop({ required: true })
   likeStatus: LikeStatusType;
