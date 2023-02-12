@@ -19,7 +19,6 @@ import { PostViewModel } from '../posts/view-models/postViewModel';
 import { BlogPostInputModel } from './dto/blogPostInputModel';
 import { PostsService } from '../posts/posts.service';
 import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
-import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
 import { BlogsQueryRepository } from './blogs.query.repository';
 import { PostsQueryRepository } from '../posts/posts.query.repository';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
@@ -30,6 +29,7 @@ import { DeleteBlogCommand } from './use-cases/delete-blog-use-case';
 import { CreateNewPostCommand } from '../posts/use-cases/create-new-post-use-case';
 import { EditPostCommand } from '../posts/use-cases/edit-post-use-case';
 import { DeletePostCommand } from '../posts/use-cases/delete-post-use-case';
+import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @UseGuards(AccessTokenGuard)
 @Controller('blogger/blogs')
@@ -47,7 +47,7 @@ export class BloggerBlogsController {
   async editBlog(
     @Param('blogId') blogId: string,
     @Body() changes: BlogInputModel,
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
@@ -63,7 +63,7 @@ export class BloggerBlogsController {
   @Delete(':blogId')
   @HttpCode(204)
   async deleteBlog(
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
   ) {
     if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
@@ -81,7 +81,7 @@ export class BloggerBlogsController {
   @Post()
   async createBlog(
     @Body() blog: BlogInputModel,
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     const blogId = await this.commandBus.execute(
       new CreateNewBlogCommand(blog, userId),
@@ -93,7 +93,7 @@ export class BloggerBlogsController {
   async getBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null = null,
     @Query() query,
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     const paginatorParams = castQueryParams(query);
     return await this.blogsQueryRepository.findBlogs(
@@ -105,7 +105,7 @@ export class BloggerBlogsController {
 
   @Post(':blogId/posts')
   async createPostForBlog(
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Body() blogPostInputModel: BlogPostInputModel,
   ): Promise<PostViewModel> {
@@ -121,7 +121,7 @@ export class BloggerBlogsController {
   @Put(':blogId/posts/:postId')
   @HttpCode(204)
   async editPost(
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Body() postChanges: BlogPostInputModel,
@@ -143,7 +143,7 @@ export class BloggerBlogsController {
   @Delete(':blogId/posts/:postId')
   @HttpCode(204)
   async deletePost(
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
   ) {
