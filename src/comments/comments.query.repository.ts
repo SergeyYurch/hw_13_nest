@@ -19,7 +19,7 @@ export class CommentsQueryRepository {
 
   async getCommentById(commentId: string, userId?: string) {
     const comment = await this.CommentModel.findById(commentId);
-    if (!comment) return null;
+    if (!comment || comment.isBanned) return null;
     return this.getCommentViewModel(comment, userId);
   }
 
@@ -33,10 +33,12 @@ export class CommentsQueryRepository {
     const comments = await this.CommentModel.find({ postId })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .sort({ [sortBy]: sortDirection });
-    const items: CommentViewModel[] = comments.map((c) =>
-      this.getCommentViewModel(c, userId),
-    );
+      .sort({ [sortBy]: sortDirection })
+      .exec();
+    const items: CommentViewModel[] = [];
+    for (const c of comments) {
+      if (!c.isBanned) items.push(this.getCommentViewModel(c, userId));
+    }
 
     return {
       pagesCount: pagesCount(totalCount, pageSize),
@@ -55,9 +57,11 @@ export class CommentsQueryRepository {
     let dislikesCount = 0;
     let myStatus: LikeStatusType = 'None';
     if (comment.likes.length > 0) {
-      likesCount = comment.likes.filter((c) => c.likeStatus === 'Like').length;
+      likesCount = comment.likes.filter(
+        (c) => c.likeStatus === 'Like' && !c.userIsBanned,
+      ).length;
       dislikesCount = comment.likes.filter(
-        (c) => c.likeStatus === 'Dislike',
+        (c) => c.likeStatus === 'Dislike' && !c.userIsBanned,
       ).length;
       if (userId) {
         const myLike = comment.likes.find((l) => l.userId === userId);
