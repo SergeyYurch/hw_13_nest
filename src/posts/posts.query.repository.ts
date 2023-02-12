@@ -13,7 +13,8 @@ export class PostsQueryRepository {
   constructor(@InjectModel(Post.name) private PostModel: Model<PostDocument>) {}
 
   async checkPostId(postId: string): Promise<boolean> {
-    return !!(await this.PostModel.findById(postId));
+    const post = await this.PostModel.findById(postId);
+    return !!post && !post.isBanned;
   }
 
   async findPosts(
