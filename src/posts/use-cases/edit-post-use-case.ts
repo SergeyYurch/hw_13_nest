@@ -22,7 +22,7 @@ export class EditPostUseCase implements ICommandHandler<EditPostCommand> {
   async execute(command: EditPostCommand): Promise<boolean> {
     const { userId, blogId, postId, postChanges } = command;
     await this.blogsService.checkBlogOwner(blogId, userId);
-    const postModel = await this.postRepository.findModel(postId);
+    const postModel = await this.postRepository.getPostModelById(postId);
     postModel.updatePost(postChanges);
     const result = await this.postRepository.save(postModel);
     return !!result;
