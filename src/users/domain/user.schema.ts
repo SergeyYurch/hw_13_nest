@@ -271,10 +271,11 @@ export class User {
   }
 
   ban(isBanned, banReason: string, saId: string) {
+    this.deviceSessions = [];
     this.banInfo = {
       isBanned,
-      banDate: new Date(),
-      banReason,
+      banDate: isBanned ? new Date() : null,
+      banReason: isBanned ? banReason : null,
       sa: saId,
     };
   }
