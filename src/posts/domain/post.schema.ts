@@ -19,10 +19,16 @@ export class Post {
   content: string;
 
   @Prop({ required: true })
+  bloggerId: string;
+
+  @Prop({ required: true })
   blogId: string;
 
   @Prop({ required: true })
   blogName: string;
+
+  @Prop({ default: false })
+  isBanned: boolean;
 
   @Prop({ default: new Date() })
   createdAt: Date;
@@ -35,6 +41,7 @@ export class Post {
     this.shortDescription = postDto.shortDescription;
     this.content = postDto.content;
     this.blogId = postDto.blogId;
+    this.bloggerId = postDto.bloggerId;
     this.blogName = postDto.blogName;
     this.createdAt = new Date();
   }
@@ -43,6 +50,10 @@ export class Post {
     this.title = postDto.title;
     this.shortDescription = postDto.shortDescription;
     this.content = postDto.content;
+  }
+
+  banPost(isBanned: boolean) {
+    this.isBanned = isBanned;
   }
 
   updateLikeStatus(userId: string, login: string, likeStatus: LikeStatusType) {
@@ -54,7 +65,7 @@ export class Post {
         likeStatus,
         addedAt: new Date(),
         updatedAt: new Date(),
-        userBan: false,
+        userIsBanned: false,
       });
       return;
     }
@@ -70,6 +81,7 @@ PostSchema.methods = {
   initial: Post.prototype.initial,
   updatePost: Post.prototype.updatePost,
   updateLikeStatus: Post.prototype.updateLikeStatus,
+  banPost: Post.prototype.banPost,
 };
 
 export type PostDocument = HydratedDocument<Post>;
