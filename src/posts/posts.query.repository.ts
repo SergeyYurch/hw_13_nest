@@ -23,16 +23,17 @@ export class PostsQueryRepository {
   ): Promise<PaginatorView<PostViewModel>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
     const filter = blogId ? { blogId } : {};
-    console.log(`filer: ${filter}`);
-    console.log(filter);
     const totalCount = await this.PostModel.countDocuments(filter);
-    const result = await this.PostModel.find(filter)
+    const posts = await this.PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
-    const items: PostViewModel[] = result.map((p) =>
-      this.getPostViewModel(p, userId),
-    );
+      .limit(pageSize)
+      .exec();
+    const items: PostViewModel[] = [];
+    for (const p of posts) {
+      if (!p.isBanned) items.push(this.getPostViewModel(p, userId));
+    }
+
     return {
       pagesCount: pagesCount(totalCount, pageSize),
       page: pageNumber,
@@ -47,19 +48,17 @@ export class PostsQueryRepository {
     userId?: string,
   ): Promise<PostViewModel | null> {
     const postInDb = await this.PostModel.findById(postId);
-    if (!postInDb) return null;
+    if (!postInDb || postInDb.isBanned) return null;
     return this.getPostViewModel(postInDb, userId);
   }
 
   getPostViewModel(post: Post, userId?: string): PostViewModel {
-    console.log('getPostViewModel');
-    console.log(`userId:${userId}`);
     const likes = post.likes.filter(
-      (l) => l.likeStatus === 'Like' && !l.userBan,
+      (l) => l.likeStatus === 'Like' && !l.userIsBanned,
     );
     const likesCount = likes.length;
     const dislike = post.likes.filter(
-      (l) => l.likeStatus === 'Dislike' && !l.userBan,
+      (l) => l.likeStatus === 'Dislike' && !l.userIsBanned,
     );
     const dislikesCount = dislike.length;
     likes.sort((l1, l2) => {
@@ -67,7 +66,6 @@ export class PostsQueryRepository {
       if (l1.addedAt > l2.addedAt) return -1;
       return 0;
     });
-    console.log(likes);
     const lastLikes = likes.slice(0, 3);
     const newestLikes = lastLikes.map((l) => ({
       addedAt: l.addedAt.toISOString(),
