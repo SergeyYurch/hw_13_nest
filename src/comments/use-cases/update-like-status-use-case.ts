@@ -22,7 +22,7 @@ export class UpdateLikeStatusUseCase
 
   async execute(command: UpdateLikeStatusCommand) {
     const { userId, likeStatus, commentId } = command;
-    const commentModel = await this.commentsRepository.getCommentModel(
+    const commentModel = await this.commentsRepository.getCommentModelById(
       commentId,
     );
     commentModel.updateLikeStatus(userId, likeStatus);
