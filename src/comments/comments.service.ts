@@ -10,7 +10,9 @@ export class CommentsService {
   ) {}
 
   async validateOwner(commentId, userId) {
-    const comment = await this.commentsRepository.getCommentModel(commentId);
+    const comment = await this.commentsRepository.getCommentModelById(
+      commentId,
+    );
     if (userId !== comment.userId) {
       throw new ForbiddenException('Forbidden');
     }
