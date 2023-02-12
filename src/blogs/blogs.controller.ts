@@ -12,10 +12,9 @@ import { PostViewModel } from '../posts/view-models/postViewModel';
 import { PaginatorView } from '../common/view-models/paginatorView';
 import { PostsService } from '../posts/posts.service';
 import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
-import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
-import { JwtPayloadType } from '../auth/types/jwt-payload.type';
 import { BlogsQueryRepository } from './blogs.query.repository';
 import { PostsQueryRepository } from '../posts/posts.query.repository';
+import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @Controller('blogs')
 export class BlogsController {
@@ -42,12 +41,11 @@ export class BlogsController {
   async getPostsForBlog(
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Query() query: PaginatorInputType,
-    @CurrentUserJwtInfo() userInfo: JwtPayloadType,
+    @CurrentUserId() userId: string,
   ): Promise<PaginatorView<PostViewModel>> {
     if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
-    const userId = userInfo.userId;
     const paginatorParams = castQueryParams(query);
     return await this.postsQueryRepository.findPosts(
       paginatorParams,
