@@ -7,7 +7,7 @@ export class CommentsLike {
   userId: string;
 
   @Prop({ required: false })
-  userBan: boolean;
+  userIsBanned: boolean;
 
   @Prop({ required: true })
   likeStatus: LikeStatusType;
