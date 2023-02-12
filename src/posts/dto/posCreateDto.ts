@@ -3,5 +3,6 @@ export class PosCreateDto {
   shortDescription: string;
   content: string;
   blogId: string;
+  bloggerId: string;
   blogName: string;
 }
