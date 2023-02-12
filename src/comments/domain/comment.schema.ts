@@ -19,6 +19,9 @@ export class Comment {
   @Prop({ required: true })
   userLogin: string;
 
+  @Prop({ default: false })
+  isBanned: boolean;
+
   @Prop({ required: true })
   createdAt: Date;
 
@@ -42,6 +45,9 @@ export class Comment {
     this.updatedAt = new Date();
   }
 
+  banComment(isBanned: boolean) {
+    this.isBanned = isBanned;
+  }
   updateLikeStatus(userId: string, likeStatus: LikeStatusType) {
     const existingLikeItem = this.likes.find((l) => l.userId === userId);
     if (!existingLikeItem) {
@@ -50,7 +56,7 @@ export class Comment {
         likeStatus,
         addedAt: new Date(),
         updatedAt: new Date(),
-        userBan: false,
+        userIsBanned: false,
       });
       return;
     }
@@ -67,5 +73,6 @@ CommentSchema.methods = {
   initial: Comment.prototype.initial,
   updateContent: Comment.prototype.updateContent,
   updateLikeStatus: Comment.prototype.updateLikeStatus,
+  banComment: Comment.prototype.banComment,
 };
 export type CommentDocument = HydratedDocument<Comment>;
