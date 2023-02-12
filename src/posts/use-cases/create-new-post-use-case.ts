@@ -33,6 +33,7 @@ export class CreateNewPostUseCase {
       shortDescription,
       content,
       blogId,
+      bloggerId: userId,
       blogName: blog.name,
     };
     await createdPost.initial(postDto);
