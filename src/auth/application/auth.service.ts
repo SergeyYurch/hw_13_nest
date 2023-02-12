@@ -27,7 +27,11 @@ export class AuthService {
       password,
       passwordSalt,
     );
-    if (!user || !(await user.validateCredentials(passwordHash))) {
+    if (
+      !user ||
+      user.banInfo.isBanned ||
+      !(await user.validateCredentials(passwordHash))
+    ) {
       throw new UnauthorizedException([
         { message: UNAUTHORIZED_MESSAGE, field: 'loginOrEmail' },
       ]);
