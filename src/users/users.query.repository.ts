@@ -14,6 +14,10 @@ export class UsersQueryRepository {
   async checkUserId(userId: string): Promise<boolean> {
     return !!(await this.UserModel.findById(userId));
   }
+  async checkUserBanStatus(userId: string): Promise<boolean> {
+    const user = await this.UserModel.findById(userId);
+    return user.banInfo.isBanned;
+  }
 
   async findUserByLoginOrEmail(loginOrEmail: string) {
     return await this.UserModel.findOne({
@@ -24,10 +28,15 @@ export class UsersQueryRepository {
     }).exec();
   }
 
-  async getUserById(id: string): Promise<UserViewModel | null> {
+  async getUserById(
+    id: string,
+    withBanStatus?: boolean,
+  ): Promise<UserViewModel | null> {
     const user = await this.UserModel.findById(id);
     if (!user) return null;
-    return this.getUserViewModel(user);
+    return withBanStatus
+      ? this.getUserSaViewModel(user)
+      : this.getUserViewModel(user);
   }
 
   async getEmailConfirmationData(userId: string) {
@@ -45,7 +54,7 @@ export class UsersQueryRepository {
     searchLoginTerm?: string,
     searchEmailTerm?: string,
     banStatus?: string,
-    forSa = false,
+    withBanStatus = false,
   ) {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
     const searchQuery = [];
@@ -69,7 +78,7 @@ export class UsersQueryRepository {
       .limit(pageSize)
       .sort({ [`accountData.${sortBy}`]: sortDirection });
     const items: UserViewModel[] = result.map((u) =>
-      forSa ? this.getUserSaViewModel(u) : this.getUserViewModel(u),
+      withBanStatus ? this.getUserSaViewModel(u) : this.getUserViewModel(u),
     );
     return {
       pagesCount: pagesCount(totalCount, pageSize),
