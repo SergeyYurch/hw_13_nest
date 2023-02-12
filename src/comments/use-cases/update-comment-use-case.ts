@@ -23,7 +23,9 @@ export class UpdateCommentUseCase
 
   async execute(command: UpdateCommentCommand) {
     const { userId, commentId, commentDto } = command;
-    const comment = await this.commentsRepository.getCommentModel(commentId);
+    const comment = await this.commentsRepository.getCommentModelById(
+      commentId,
+    );
     if (userId !== comment.userId) {
       throw new ForbiddenException('Forbidden');
     }
