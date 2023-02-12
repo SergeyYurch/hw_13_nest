@@ -9,6 +9,7 @@ export class CreateCommentCommand {
     public postId: string,
   ) {}
 }
+
 @CommandHandler(CreateCommentCommand)
 export class CreateCommentUseCase
   implements ICommandHandler<CreateCommentCommand>
@@ -20,9 +21,10 @@ export class CreateCommentUseCase
 
   async execute(command: CreateCommentCommand) {
     const { userId, postId, content } = command;
-    const { login } = await this.usersQueryRepository.getUserById(userId);
+    console.log(`userId ${userId}`);
+    const blogger = await this.usersQueryRepository.getUserById(userId);
     const commentModel = await this.commentsRepository.createCommentModel();
-    commentModel.initial(content, userId, login, postId);
+    commentModel.initial(content, userId, blogger.login, postId);
     await this.commentsRepository.save(commentModel);
     return await this.commentsRepository.save(commentModel);
   }
