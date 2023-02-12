@@ -21,8 +21,16 @@ export class PostsRepository {
     return result.deletedCount === 1;
   }
 
-  async findModel(postId: string) {
+  async getPostModelById(postId: string) {
     return this.PostModel.findById(postId);
+  }
+
+  async getPostsModelsByUserId(userId: string) {
+    return this.PostModel.find({ bloggerId: userId });
+  }
+
+  async getPostsModelsByLikeUserId(userId: string) {
+    return this.PostModel.find({ 'likes.userId': userId });
   }
 
   async save(createdPostModel) {
