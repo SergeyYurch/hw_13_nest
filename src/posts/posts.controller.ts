@@ -21,10 +21,10 @@ import { Request } from 'express';
 import { CommentInputModel } from '../comments/dto/commentInputModel';
 import { PostsQueryRepository } from './posts.query.repository';
 import { CommentsQueryRepository } from '../comments/comments.query.repository';
-import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdatePostLikeStatusCommand } from './use-cases/update-post-like-status-use-case';
 import { CreateCommentCommand } from '../comments/use-cases/create-comment-use-case';
+import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -40,7 +40,7 @@ export class PostsController {
   async updatePostLikeStatus(
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Body() likeDto: LikeInputModel,
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
@@ -58,7 +58,7 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Query() query: PaginatorInputType,
-    @CurrentUserJwtInfo() userId: string,
+    @CurrentUserId() userId: string,
   ) {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
@@ -76,12 +76,11 @@ export class PostsController {
   async createCommentForPost(
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
     @Body() commentDto: CommentInputModel,
-    @Req() req: Request,
+    @CurrentUserId() userId: string,
   ) {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user?.userId;
     const commentId = await this.commandBus.execute(
       new CreateCommentCommand(commentDto.content, userId, postId),
     );
@@ -102,12 +101,11 @@ export class PostsController {
   @Get(':postId')
   async getPost(
     @Param('postId', ValidateObjectIdTypePipe) postId: string,
-    @Req() req: Request,
+    @CurrentUserId() userId: string,
   ) {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const userId = req.user?.userId;
     return await this.postsQueryRepository.getPostById(postId, userId);
   }
 }
