@@ -14,7 +14,8 @@ export class CommentsQueryRepository {
   ) {}
 
   async checkCommentId(commentId: string) {
-    return !!(await this.CommentModel.findById(commentId));
+    const comment = await this.CommentModel.findById(commentId);
+    return !!comment && !comment.isBanned;
   }
 
   async getCommentById(commentId: string, userId?: string) {
