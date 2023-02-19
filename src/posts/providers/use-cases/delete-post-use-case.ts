@@ -1,6 +1,6 @@
 import { PostsRepository } from '../posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsService } from '../../blogs/blogs.service';
+import { BlogsService } from '../../../blogs/providers/blogs.service';
 
 export class DeletePostCommand {
   constructor(
