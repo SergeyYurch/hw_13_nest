@@ -11,29 +11,29 @@ import {
   HttpCode,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginInputModel } from './dto/loginInputModel';
-import { AuthService } from './application/auth.service';
+import { LoginInputModel } from './dto/login.input.model';
+import { AuthService } from './providers/auth.service';
 import { Response, Request } from 'express';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
-import { UserInputModel } from '../users/dto/userInputModel';
-import { RegistrationConfirmationCodeInputModel } from './dto/registrationConfirmationCodeInputModel';
-import { RegistrationEmailResendingInputModel } from './dto/registrationEmailResendingInputModel';
-import { PasswordRecoveryInputModel } from './dto/passwordRecoveryInputModel';
-import { NewPasswordRecoveryInputModel } from './dto/newPasswordRecoveryInputModel';
+import { UserInputModel } from '../users/dto/input-models/user-input-model';
+import { RegistrationConfirmationCodeInputModel } from './dto/registration-confirmation-code.input.model';
+import { RegistrationEmailResendingInputModel } from './dto/registration-email-resending.input.model';
+import { PasswordRecoveryInputModel } from './dto/password-recovery.input.model';
+import { NewPasswordRecoveryInputModel } from './dto/new-password-recovery.input.model';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
 import { JwtPayloadType } from './types/jwt-payload.type';
 import { CommandBus } from '@nestjs/cqrs';
-import { UsersQueryRepository } from '../users/users.query.repository';
-import { SignInCommand } from './application/use-cases/sign-in-use-case';
-import { LogoutCommand } from './application/use-cases/logout-use-case';
-import { RefreshTokenCommand } from './application/use-cases/refresh-token-use-cases';
-import { RegistrationUserCommand } from '../users/use-cases/registration-user-use-case';
-import { RegistrationConfirmationCommand } from './application/use-cases/registration-confirmation-use-case';
-import { RegistrationEmailResendingCommand } from './application/use-cases/registration-email-resending-use-case';
-import { PasswordRecoveryCommand } from './application/use-cases/password-recovery-use-case';
-import { SetNewPasswordCommand } from './application/use-cases/set-new-password-use-case';
+import { UsersQueryRepository } from '../users/providers/users.query.repository';
+import { SignInCommand } from './providers/use-cases/sign-in-use-case';
+import { LogoutCommand } from './providers/use-cases/logout-use-case';
+import { RefreshTokenCommand } from './providers/use-cases/refresh-token-use-cases';
+import { RegistrationUserCommand } from '../users/providers/use-cases/registration-user-use-case';
+import { RegistrationConfirmationCommand } from './providers/use-cases/registration-confirmation-use-case';
+import { RegistrationEmailResendingCommand } from './providers/use-cases/registration-email-resending-use-case';
+import { PasswordRecoveryCommand } from './providers/use-cases/password-recovery-use-case';
+import { SetNewPasswordCommand } from './providers/use-cases/set-new-password-use-case';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
