@@ -1,4 +1,4 @@
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 import { PostsRepository } from '../posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
