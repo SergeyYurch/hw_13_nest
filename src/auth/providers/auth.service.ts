@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UNAUTHORIZED_MESSAGE } from '../auth.constant';
+import { UNAUTHORIZED_MESSAGE } from '../constants/auth.constant';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
-import { UsersRepository } from '../../users/users.repository';
+import { UsersRepository } from '../../users/providers/users.repository';
 import { JwtPayloadType } from '../types/jwt-payload.type';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../../users/domain/user.schema';
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '../../users/providers/users.service';
 import { Response } from 'express';
 
 @Injectable()
@@ -22,11 +22,15 @@ export class AuthService {
 
   async validateUser(loginOrEmail: string, password: string) {
     const user = await this.userRepository.findUserByLoginOrEmail(loginOrEmail);
-    const passwordSalt = user.accountData.passwordSalt;
-    const passwordHash = await this.usersService.getPasswordHash(
-      password,
-      passwordSalt,
-    );
+    let passwordSalt: string;
+    let passwordHash: string;
+    if (user) {
+      passwordSalt = user.accountData.passwordSalt;
+      passwordHash = await this.usersService.getPasswordHash(
+        password,
+        passwordSalt,
+      );
+    }
     if (
       !user ||
       user.banInfo.isBanned ||
@@ -50,7 +54,7 @@ export class AuthService {
   }
 
   async validateUsersDeviceSession(jwtPayload: JwtPayloadType) {
-    const user = await this.UserModel.findById(jwtPayload.userId);
+    const user = await this.userRepository.getUserModel(jwtPayload.userId);
     if (!user) {
       throw new UnauthorizedException(UNAUTHORIZED_MESSAGE);
     }
