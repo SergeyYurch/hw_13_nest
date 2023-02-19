@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from './common/exceptionFilters/http-exception.filter';
-import cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from './common/exception-filters/http-exception.filter';
+import * as cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { useContainer } from 'class-validator';
 
@@ -10,6 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
   app.set('trust proxy', 1);
+  // app.setGlobalPrefix('api');
   app.use(cookieParser());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.useGlobalPipes(
@@ -30,7 +31,7 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new HttpExceptionFilter());
-  const port = process.env.PORT || 5000;
+  const port = process.env.PORT;
   await app.listen(port);
 }
 bootstrap();
