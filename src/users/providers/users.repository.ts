@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User, UserDocument } from './domain/user.schema';
+import { User, UserDocument } from '../domain/user.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -22,7 +22,7 @@ export class UsersRepository {
     return result.deletedCount === 1;
   }
 
-  async save(user): Promise<User> {
+  async save(user): Promise<string> {
     const userInDb = await user.save();
     return userInDb?._id?.toString();
   }
