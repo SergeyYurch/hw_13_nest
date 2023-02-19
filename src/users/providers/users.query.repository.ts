@@ -1,11 +1,11 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { pagesCount } from '../common/helpers/helpers';
-import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
-import { User, UserDocument } from './domain/user.schema';
-import { UserViewModel } from './view-models/userViewModel';
-import { MeViewModel } from '../common/view-models/meViewModel';
+import { pagesCount } from '../../common/helpers/helpers';
+import { PaginatorInputType } from '../../common/dto/input-models/paginator.input.type';
+import { User, UserDocument } from '../domain/user.schema';
+import { UserViewModel } from '../dto/view-models/user.view.model';
+import { MeViewModel } from '../../common/dto/view-models/me.view.model';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -67,9 +67,14 @@ export class UsersQueryRepository {
       searchQuery.push({
         'accountData.email': new RegExp(searchEmailTerm, 'i'),
       });
-    if (banStatus)
+    if (banStatus === 'banned')
       searchQuery.push({
         'banInfo.isBanned': true,
+      });
+
+    if (banStatus === 'notBanned')
+      searchQuery.push({
+        'banInfo.isBanned': false,
       });
     if (searchQuery.length > 0) filter = { $or: searchQuery };
     const totalCount = await this.UserModel.countDocuments(filter);
