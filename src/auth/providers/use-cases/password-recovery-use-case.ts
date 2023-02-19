@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../../users/users.repository';
+import { UsersRepository } from '../../../users/providers/users.repository';
 import { MailService } from '../../../common/mail.service/mail.service';
 import { BadRequestException } from '@nestjs/common';
-import { PASSWORD_RECOVERY_MESSAGE } from '../../auth.constant';
+import { PASSWORD_RECOVERY_MESSAGE } from '../../constants/auth.constant';
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}
 }
@@ -19,9 +19,7 @@ export class PasswordRecoveryUseCase
     const { email } = command;
     const userModel = await this.userRepository.findUserByLoginOrEmail(email);
     if (!userModel) {
-      throw new BadRequestException([
-        { message: PASSWORD_RECOVERY_MESSAGE, field: 'email' },
-      ]);
+      return null;
     }
     const recoveryCode = userModel.generateNewPasswordRecoveryCode();
     await this.userRepository.save(userModel);
