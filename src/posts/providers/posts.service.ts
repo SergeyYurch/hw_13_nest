@@ -1,14 +1,14 @@
-import { PostViewModel } from './view-models/postViewModel';
-import { PostInputModel } from './dto/postInputModel';
+import { PostViewModel } from '../dto/view-models/post.view.model';
+import { PostInputModel } from '../dto/input-models/post.input.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from './domain/post.schema';
+import { Post, PostDocument } from '../domain/post.schema';
 import { Model, Types } from 'mongoose';
 import { PostsRepository } from './posts.repository';
-import { Blog, BlogDocument } from '../blogs/domain/blog.schema';
-import { LikeStatusType } from '../common/inputModels/likeInputModel';
+import { Blog, BlogDocument } from '../../blogs/domain/blog.schema';
+import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
 import { PostsQueryRepository } from './posts.query.repository';
-import { UsersQueryRepository } from '../users/users.query.repository';
+import { UsersQueryRepository } from '../../users/providers/users.query.repository';
 
 @Injectable()
 export class PostsService {
