@@ -1,9 +1,9 @@
 import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { LikeStatusType } from '../../common/inputModels/likeInputModel';
+import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
 import { LikeForPost, LikeForPostSchema } from './like-for-post.schema';
-import { PosCreateDto } from '../dto/posCreateDto';
-import { PostUpdateDto } from '../dto/postUpdateDto';
+import { PostCreateDto } from '../dto/post-create.dto';
+import { PostUpdateDto } from '../dto/post-update.dto';
 
 @Schema()
 export class Post {
@@ -36,7 +36,7 @@ export class Post {
   @Prop({ type: [LikeForPostSchema], default: [] })
   likes: LikeForPost[];
 
-  initial(postDto: PosCreateDto) {
+  initial(postDto: PostCreateDto) {
     this.title = postDto.title;
     this.shortDescription = postDto.shortDescription;
     this.content = postDto.content;
