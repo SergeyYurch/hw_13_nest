@@ -6,7 +6,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendConfirmationEmail(email: string, confirmationCode: string) {
-    console.log(`${new Date()}:send to ${email} code: ${confirmationCode}`);
+    // console.log(`${new Date()}:send to ${email} code: ${confirmationCode}`);
     const result = await this.mailerService.sendMail({
       to: email,
       from: 'noreply@nestjs.com',
@@ -16,13 +16,10 @@ export class MailService {
         confirmationCode,
       },
     });
-
-    console.log(`${new Date()}:[MailService] email is send`);
-    console.log(result);
   }
 
   async sendPasswordRecoveryEmail(email: string, recoveryCode: string) {
-    console.log(`send to ${email} recoveryCode: ${recoveryCode}`);
+    // console.log(`send to ${email} recoveryCode: ${recoveryCode}`);
     const result = await this.mailerService.sendMail({
       to: email,
       from: 'noreply@nestjs.com',
