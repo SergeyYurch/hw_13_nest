@@ -1,11 +1,11 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { pagesCount } from '../common/helpers/helpers';
-import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
-import { LikeStatusType } from '../common/inputModels/likeInputModel';
-import { Comment, CommentDocument } from './domain/comment.schema';
-import { CommentViewModel } from './view-models/commentViewModel';
+import { pagesCount } from '../../common/helpers/helpers';
+import { PaginatorInputType } from '../../common/dto/input-models/paginator.input.type';
+import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
+import { Comment, CommentDocument } from '../domain/comment.schema';
+import { CommentViewModel } from '../view-models/comment.view.model';
 
 @Injectable()
 export class CommentsQueryRepository {
