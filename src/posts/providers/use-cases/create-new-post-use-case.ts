@@ -1,10 +1,10 @@
 import { PostsRepository } from '../posts.repository';
-import { PostViewModel } from '../view-models/postViewModel';
-import { BlogsQueryRepository } from '../../blogs/blogs.query.repository';
+import { PostViewModel } from '../../dto/view-models/post.view.model';
+import { BlogsQueryRepository } from '../../../blogs/providers/blogs.query.repository';
 import { CommandHandler } from '@nestjs/cqrs';
-import { BlogsService } from '../../blogs/blogs.service';
-import { PosCreateDto } from '../dto/posCreateDto';
-import { BlogPostInputModel } from '../../blogs/dto/blogPostInputModel';
+import { BlogsService } from '../../../blogs/providers/blogs.service';
+import { PostCreateDto } from '../../dto/post-create.dto';
+import { BlogPostInputModel } from '../../../blogs/dto/input-models/blog-post.input.model';
 
 export class CreateNewPostCommand {
   constructor(
@@ -28,7 +28,7 @@ export class CreateNewPostUseCase {
     await this.blogsService.checkBlogOwner(blogId, userId);
     const createdPost = await this.postRepository.createModel();
     const blog = await this.blogQueryRepository.getBlogById(blogId);
-    const postDto: PosCreateDto = {
+    const postDto: PostCreateDto = {
       title,
       shortDescription,
       content,
