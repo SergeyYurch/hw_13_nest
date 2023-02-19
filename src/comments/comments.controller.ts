@@ -9,16 +9,16 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommentsService } from './comments.service';
-import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
+import { CommentsService } from './providers/comments.service';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { CommentInputModel } from './dto/commentInputModel';
-import { LikeInputModel } from '../common/inputModels/likeInputModel';
-import { CommentsQueryRepository } from './comments.query.repository';
+import { CommentInputModel } from './dto/comment-input.model';
+import { LikeInputModel } from '../common/dto/input-models/like.input.model';
+import { CommentsQueryRepository } from './providers/comments.query.repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { DeleteCommentCommand } from './use-cases/delete-comment-use-case';
-import { UpdateCommentCommand } from './use-cases/update-comment-use-case';
-import { UpdateLikeStatusCommand } from './use-cases/update-like-status-use-case';
+import { DeleteCommentCommand } from './providers/use-cases/delete-comment-use-case';
+import { UpdateCommentCommand } from './providers/use-cases/update-comment-use-case';
+import { UpdateLikeStatusCommand } from './providers/use-cases/update-like-status-use-case';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @Controller('comments')
