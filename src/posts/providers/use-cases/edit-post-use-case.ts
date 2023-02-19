@@ -1,6 +1,6 @@
 import { PostsRepository } from '../posts.repository';
-import { BlogsService } from '../../blogs/blogs.service';
-import { BlogPostInputModel } from '../../blogs/dto/blogPostInputModel';
+import { BlogsService } from '../../../blogs/providers/blogs.service';
+import { BlogPostInputModel } from '../../../blogs/dto/input-models/blog-post.input.model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class EditPostCommand {
