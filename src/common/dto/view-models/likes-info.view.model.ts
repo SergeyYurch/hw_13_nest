@@ -1,4 +1,4 @@
-import { LikeStatusType } from '../inputModels/likeInputModel';
+import { LikeStatusType } from '../input-models/like.input.model';
 
 export interface LikesInfoViewModel {
   likesCount: number;

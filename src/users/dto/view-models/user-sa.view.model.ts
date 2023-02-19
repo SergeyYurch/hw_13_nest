@@ -1,4 +1,4 @@
-import { UserViewModel } from './userViewModel';
+import { UserViewModel } from './user.view.model';
 
 export interface UserSaViewModel extends UserViewModel {
   banInfo: {

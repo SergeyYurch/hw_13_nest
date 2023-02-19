@@ -1,4 +1,4 @@
-export class PaginatorView<T> {
+export class PaginatorViewModel<T> {
   pagesCount: number;
   page: number;
   pageSize: number;

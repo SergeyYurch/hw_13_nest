@@ -1,4 +1,4 @@
-import { ExtendedLikesInfoViewModel } from '../../common/view-models/extendedLikesInfoViewModel';
+import { ExtendedLikesInfoViewModel } from '../../../common/dto/view-models/extended-likes-info.view.model';
 
 export interface PostViewModel {
   id: string;
