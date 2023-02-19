@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users.repository';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BanUserInputModel } from '../dto/ban -user-input-model.dto';
-import { BanCommentCommand } from '../../comments/use-cases/ban-comment-use-case';
-import { BanCommentLikesCommand } from '../../comments/use-cases/ban-comment-likes-use-case';
-import { BanPostLikesCommand } from '../../posts/use-cases/ban-post-likes-use-case';
-import { BanPostsCommand } from '../../posts/use-cases/ban-posts-use-case';
+import { BanUserInputModel } from '../../dto/input-models/ban -user-input-model.dto';
+import { BanCommentCommand } from '../../../comments/providers/use-cases/ban-comment-use-case';
+import { BanCommentLikesCommand } from '../../../comments/providers/use-cases/ban-comment-likes-use-case';
+import { BanPostLikesCommand } from '../../../posts/providers/use-cases/ban-post-likes-use-case';
+import { BanPostsCommand } from '../../../posts/providers/use-cases/ban-posts-use-case';
 
 export class BanUserCommand {
   constructor(
