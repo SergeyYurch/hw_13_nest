@@ -6,7 +6,7 @@ import {
   getConfirmationEmailExpirationDate,
   getPasswordRecoveryCodeExpirationDate,
 } from '../../common/helpers/helpers';
-import { UserCreatDto } from '../dto/userCreatDto';
+import { UserCreatDto } from '../dto/user-creat.dto';
 
 @Schema()
 export class AccountData {
@@ -156,6 +156,7 @@ export class User {
     if (this.deviceSessions.length === 0) {
       this.sigIn = false;
     }
+
     const deviceSession = this.deviceSessions.find(
       (s) => s.deviceId === deviceId,
     );
