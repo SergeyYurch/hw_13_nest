@@ -1,11 +1,15 @@
 import { AuthService } from '../auth.service';
-import { UsersRepository } from '../../../users/users.repository';
+import { UsersRepository } from '../../../users/providers/users.repository';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class RefreshTokenCommand {
   constructor(public userId: string, public deviceId: string) {}
 }
 
-export class RefreshTokenUseCases {
+@CommandHandler(RefreshTokenCommand)
+export class RefreshTokenUseCases
+  implements ICommandHandler<RefreshTokenCommand>
+{
   constructor(
     private authService: AuthService,
     private usersRepository: UsersRepository,
