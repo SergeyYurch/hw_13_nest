@@ -1,6 +1,6 @@
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 import { CommentsRepository } from '../comments.repository';
-import { CommentInputModel } from '../dto/commentInputModel';
+import { CommentInputModel } from '../../dto/comment-input.model';
 import { ForbiddenException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
