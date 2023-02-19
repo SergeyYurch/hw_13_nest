@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../domain/user.schema';
+import { User, UserDocument } from '../../domain/user.schema';
 import { Model, Types } from 'mongoose';
 import { CommandHandler } from '@nestjs/cqrs';
 
