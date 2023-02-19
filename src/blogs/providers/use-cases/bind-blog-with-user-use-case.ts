@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsRepository } from '../blogs.repository';
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 
 export class BindBlogWithUserCommand {
   constructor(public blogId: string, public userId: string) {}
