@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { BlogInputModel } from '../dto/blogInputModel';
+import { BlogInputModel } from '../dto/input-models/blog.input.model';
 import { AccountData } from '../../users/domain/user.schema';
 
 @Schema()
@@ -36,15 +36,17 @@ export class Blog {
   @Prop({ type: BlogOwnerInfoSchema, _id: false })
   blogOwnerInfo: BlogOwnerInfo;
 
-  initial(inputDate: BlogInputModel, userId: string, userLogin: string) {
+  initial(inputDate: BlogInputModel, userId?: string, userLogin?: string) {
     this.name = inputDate.name;
     this.websiteUrl = inputDate.websiteUrl;
     this.description = inputDate.description;
     this.createdAt = new Date();
-    this.blogOwnerInfo = {
-      userId,
-      userLogin,
-    };
+    if (userId && userLogin) {
+      this.blogOwnerInfo = {
+        userId,
+        userLogin,
+      };
+    }
   }
 
   blogUpdate(changes: BlogInputModel) {
