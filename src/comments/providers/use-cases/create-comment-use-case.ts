@@ -1,4 +1,4 @@
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 import { CommentsRepository } from '../comments.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
@@ -21,7 +21,6 @@ export class CreateCommentUseCase
 
   async execute(command: CreateCommentCommand) {
     const { userId, postId, content } = command;
-    console.log(`userId ${userId}`);
     const blogger = await this.usersQueryRepository.getUserById(userId);
     const commentModel = await this.commentsRepository.createCommentModel();
     commentModel.initial(content, userId, blogger.login, postId);
