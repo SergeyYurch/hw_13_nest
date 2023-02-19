@@ -18,5 +18,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "typeRoots": ["./types"],
+    "types": ["jest", "node","@types/jest"]
   }
 }
