@@ -12,18 +12,18 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
+import { PaginatorInputType } from '../common/dto/input-models/paginator.input.type';
 import { castQueryParams } from '../common/helpers/helpers';
-import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
-import { LikeInputModel } from '../common/inputModels/likeInputModel';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
+import { LikeInputModel } from '../common/dto/input-models/like.input.model';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { Request } from 'express';
-import { CommentInputModel } from '../comments/dto/commentInputModel';
-import { PostsQueryRepository } from './posts.query.repository';
-import { CommentsQueryRepository } from '../comments/comments.query.repository';
+import { CommentInputModel } from '../comments/dto/comment-input.model';
+import { PostsQueryRepository } from './providers/posts.query.repository';
+import { CommentsQueryRepository } from '../comments/providers/comments.query.repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { UpdatePostLikeStatusCommand } from './use-cases/update-post-like-status-use-case';
-import { CreateCommentCommand } from '../comments/use-cases/create-comment-use-case';
+import { UpdatePostLikeStatusCommand } from './providers/use-cases/update-post-like-status-use-case';
+import { CreateCommentCommand } from '../comments/providers/use-cases/create-comment-use-case';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @Controller('posts')
