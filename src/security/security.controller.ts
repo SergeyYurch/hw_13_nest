@@ -7,7 +7,7 @@ import {
   Req,
   HttpCode,
 } from '@nestjs/common';
-import { SecurityService } from './security.service';
+import { SecurityService } from './providers/security.service';
 import { RefreshTokenGuard } from '../auth/guards/refresh-token.guard';
 import { Request } from 'express';
 import { CurrentUserJwtInfo } from '../common/decorators/current-user.param.decorator';
