@@ -70,7 +70,7 @@ export class AuthService {
   getCookiesWithToken(res: Response, refreshToken: string, expiresDate) {
     res.cookie('refreshToken', refreshToken, {
       expires: new Date(expiresDate),
-      secure: true,
+      // secure: true,
       httpOnly: true,
     });
   }

@@ -288,6 +288,11 @@ describe('BloggerBlogController (e2e)', () => {
   });
 
   //GET:[HOST]/blogger/blogs -  Returns blogs (for which current user is owner) with paging Parameters
+  it('GET:[HOST]/blogger/blogs: should return code 401 ', async () => {
+    const user1Blogs = await request(app.getHttpServer())
+      .get('/blogger/blogs?sortDirection=asc')
+      .expect(401);
+  });
   it('GET:[HOST]/blogger/blogs: should return code 200 and array with 3 elements with default paginator & sortDirection=asc', async () => {
     const user1Blogs = await request(app.getHttpServer())
       .get('/blogger/blogs?sortDirection=asc')

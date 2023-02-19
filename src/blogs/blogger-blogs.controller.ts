@@ -95,6 +95,7 @@ export class BloggerBlogsController {
     @Query() query,
     @CurrentUserId() userId: string,
   ) {
+    console.log(`[getBlogs] userId: ${userId}`);
     const paginatorParams = castQueryParams(query);
     return await this.blogsQueryRepository.findBlogs(
       paginatorParams,
