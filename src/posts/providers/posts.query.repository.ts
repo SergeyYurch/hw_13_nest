@@ -1,12 +1,12 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PaginatorView } from '../common/view-models/paginatorView';
-import { pagesCount } from '../common/helpers/helpers';
-import { Post, PostDocument } from './domain/post.schema';
-import { PostViewModel } from './view-models/postViewModel';
-import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
-import { LikeStatusType } from '../common/inputModels/likeInputModel';
+import { PaginatorViewModel } from '../../common/dto/view-models/paginator.view.model';
+import { pagesCount } from '../../common/helpers/helpers';
+import { Post, PostDocument } from '../domain/post.schema';
+import { PostViewModel } from '../dto/view-models/post.view.model';
+import { PaginatorInputType } from '../../common/dto/input-models/paginator.input.type';
+import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -21,9 +21,9 @@ export class PostsQueryRepository {
     paginatorParams: PaginatorInputType,
     blogId?: string,
     userId?: string,
-  ): Promise<PaginatorView<PostViewModel>> {
+  ): Promise<PaginatorViewModel<PostViewModel>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
-    const filter = blogId ? { blogId } : {};
+    const filter = blogId ? { blogId, isBanned: false } : { isBanned: false };
     const totalCount = await this.PostModel.countDocuments(filter);
     const posts = await this.PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
@@ -32,7 +32,7 @@ export class PostsQueryRepository {
       .exec();
     const items: PostViewModel[] = [];
     for (const p of posts) {
-      if (!p.isBanned) items.push(this.getPostViewModel(p, userId));
+      items.push(this.getPostViewModel(p, userId));
     }
 
     return {
