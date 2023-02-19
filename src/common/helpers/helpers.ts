@@ -1,4 +1,4 @@
-import { PaginatorInputType } from '../inputModels/paginatorInputType';
+import { PaginatorInputType } from '../dto/input-models/paginator.input.type';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,18 +13,6 @@ export const castQueryParams = (query): PaginatorInputType => {
 
 export const pagesCount = (totalCount: number, pageSize: number) =>
   Math.ceil(totalCount / pageSize);
-//
-// export const generatePassHash = async (
-//   password: string,
-//   salt: string,
-// ): Promise<string> => {
-//   return await hash(password, salt);
-// };
-//
-// export const generateHashSalt = async (): Promise<string> => {
-//   const salt_base = Number(process.env.HASH_SALT_BASE) || 10;
-//   return await bcrypt.genSalt(salt_base);
-// };
 
 export const getConfirmationCode = (): string => uuidv4();
 
@@ -35,3 +23,9 @@ export const getPasswordRecoveryCodeExpirationDate = () =>
   new Date(
     +process.env.PASSWORD_RECOVERY_CODE_LIFE_PERIOD_SEC * 1000 + Date.now(),
   );
+
+export const delay = async (ms: number) => {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
+  });
+};
