@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../../users/users.repository';
+import { UsersRepository } from '../../../users/providers/users.repository';
 import { BadRequestException } from '@nestjs/common';
-import { PASSWORD_RECOVERY_CODE_MESSAGE } from '../../auth.constant';
+import { PASSWORD_RECOVERY_CODE_MESSAGE } from '../../constants/auth.constant';
 
 export class SetNewPasswordCommand {
   constructor(public recoveryCode: string, public newPassword: string) {}
