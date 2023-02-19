@@ -12,17 +12,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { castQueryParams } from '../common/helpers/helpers';
-import { UserInputModel } from './dto/userInputModel';
-import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
+import { UserInputModel } from './dto/input-models/user-input-model';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
 import { AuthGuard } from '@nestjs/passport';
-import { UsersQueryRepository } from './users.query.repository';
+import { UsersQueryRepository } from './providers/users.query.repository';
 import {
   CreateNewUserCommand,
   CreateNewUserUseCase,
-} from './use-cases/create-new-user-use-case';
-import { DeleteUserCommand } from './use-cases/delete-user-use-case';
+} from './providers/use-cases/create-new-user-use-case';
+import { DeleteUserCommand } from './providers/use-cases/delete-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
-import { UsersService } from './users.service';
+import { UsersService } from './providers/users.service';
 
 @UseGuards(AuthGuard('basic'))
 @Controller('users')
