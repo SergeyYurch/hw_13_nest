@@ -5,15 +5,15 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
+import { BlogsService } from './providers/blogs.service';
 import { castQueryParams } from '../common/helpers/helpers';
-import { PaginatorInputType } from '../common/inputModels/paginatorInputType';
-import { PostViewModel } from '../posts/view-models/postViewModel';
-import { PaginatorView } from '../common/view-models/paginatorView';
-import { PostsService } from '../posts/posts.service';
-import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
-import { BlogsQueryRepository } from './blogs.query.repository';
-import { PostsQueryRepository } from '../posts/posts.query.repository';
+import { PaginatorInputType } from '../common/dto/input-models/paginator.input.type';
+import { PostViewModel } from '../posts/dto/view-models/post.view.model';
+import { PaginatorViewModel } from '../common/dto/view-models/paginator.view.model';
+import { PostsService } from '../posts/providers/posts.service';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
+import { BlogsQueryRepository } from './providers/blogs.query.repository';
+import { PostsQueryRepository } from '../posts/providers/posts.query.repository';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @Controller('blogs')
@@ -42,7 +42,7 @@ export class BlogsController {
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Query() query: PaginatorInputType,
     @CurrentUserId() userId: string,
-  ): Promise<PaginatorView<PostViewModel>> {
+  ): Promise<PaginatorViewModel<PostViewModel>> {
     if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
       throw new NotFoundException('Invalid blogId');
     }
