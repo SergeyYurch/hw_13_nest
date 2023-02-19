@@ -1,11 +1,11 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Blog, BlogDocument } from '../blogs/domain/blog.schema';
-import { pagesCount } from '../common/helpers/helpers';
-import { BlogViewModel } from './view-models/blogViewModel';
-import { PaginatorView } from '../common/view-models/paginatorView';
-import { BlogViewModelWithOwner } from './view-models/blogViewModelWithOwner';
+import { Blog, BlogDocument } from '../domain/blog.schema';
+import { pagesCount } from '../../common/helpers/helpers';
+import { BlogViewModel } from '../dto/view-models/blog.view.model';
+import { PaginatorViewModel } from '../../common/dto/view-models/paginator.view.model';
+import { BlogWithOwnerViewModel } from '../dto/view-models/blog-with-owner.view.model';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -19,7 +19,7 @@ export class BlogsQueryRepository {
     paginatorParams,
     searchNameTerm,
     options?: { ownerInclude?: boolean; userId?: string },
-  ): Promise<PaginatorView<BlogViewModel>> {
+  ): Promise<PaginatorViewModel<BlogViewModel>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
     let filter = searchNameTerm
       ? { name: { $regex: searchNameTerm, $options: 'i' } }
@@ -61,9 +61,13 @@ export class BlogsQueryRepository {
     };
   }
 
-  getBlogViewModelWithOwner(blog: Blog): BlogViewModelWithOwner {
+  getBlogViewModelWithOwner(
+    blog: Blog,
+  ): BlogWithOwnerViewModel | BlogViewModel {
     const blogView = this.getBlogViewModel(blog);
-    return { ...blogView, blogOwnerInfo: blog.blogOwnerInfo };
+    if (blog.blogOwnerInfo)
+      return { ...blogView, blogOwnerInfo: blog.blogOwnerInfo };
+    return blogView;
   }
 
   async getBlogOwner(blogId: string) {
