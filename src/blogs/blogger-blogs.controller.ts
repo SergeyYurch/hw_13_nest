@@ -12,23 +12,23 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
-import { BlogInputModel } from './dto/blogInputModel';
+import { BlogsService } from './providers/blogs.service';
+import { BlogInputModel } from './dto/input-models/blog.input.model';
 import { castQueryParams } from '../common/helpers/helpers';
-import { PostViewModel } from '../posts/view-models/postViewModel';
-import { BlogPostInputModel } from './dto/blogPostInputModel';
-import { PostsService } from '../posts/posts.service';
-import { ValidateObjectIdTypePipe } from '../common/pipes/validateObjectIdType.pipe';
-import { BlogsQueryRepository } from './blogs.query.repository';
-import { PostsQueryRepository } from '../posts/posts.query.repository';
+import { PostViewModel } from '../posts/dto/view-models/post.view.model';
+import { BlogPostInputModel } from './dto/input-models/blog-post.input.model';
+import { PostsService } from '../posts/providers/posts.service';
+import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
+import { BlogsQueryRepository } from './providers/blogs.query.repository';
+import { PostsQueryRepository } from '../posts/providers/posts.query.repository';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateNewBlogCommand } from './use-cases/create-new-blog-use-case';
-import { EditBlogCommand } from './use-cases/edit-blog-use-case';
-import { DeleteBlogCommand } from './use-cases/delete-blog-use-case';
-import { CreateNewPostCommand } from '../posts/use-cases/create-new-post-use-case';
-import { EditPostCommand } from '../posts/use-cases/edit-post-use-case';
-import { DeletePostCommand } from '../posts/use-cases/delete-post-use-case';
+import { CreateNewBlogCommand } from './providers/use-cases/create-new-blog-use-case';
+import { EditBlogCommand } from './providers/use-cases/edit-blog-use-case';
+import { DeleteBlogCommand } from './providers/use-cases/delete-blog-use-case';
+import { CreateNewPostCommand } from '../posts/providers/use-cases/create-new-post-use-case';
+import { EditPostCommand } from '../posts/providers/use-cases/edit-post-use-case';
+import { DeletePostCommand } from '../posts/providers/use-cases/delete-post-use-case';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 
 @UseGuards(AccessTokenGuard)
@@ -45,7 +45,7 @@ export class BloggerBlogsController {
   @Put(':blogId')
   @HttpCode(204)
   async editBlog(
-    @Param('blogId') blogId: string,
+    @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @Body() changes: BlogInputModel,
     @CurrentUserId() userId: string,
   ) {
