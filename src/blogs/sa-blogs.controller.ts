@@ -1,24 +1,30 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
   NotFoundException,
   Param,
+  Post,
   Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from './blogs.service';
+import { BlogsService } from './providers/blogs.service';
 import { castQueryParams } from '../common/helpers/helpers';
-import { PostsService } from '../posts/posts.service';
+import { PostsService } from '../posts/providers/posts.service';
 import { AuthGuard } from '@nestjs/passport';
-import { BlogsQueryRepository } from './blogs.query.repository';
-import { UsersQueryRepository } from '../users/users.query.repository';
-import { WRONG_BLOG_ID } from './blogs.constant';
+import { BlogsQueryRepository } from './providers/blogs.query.repository';
+import { UsersQueryRepository } from '../users/providers/users.query.repository';
+import { WRONG_BLOG_ID } from './constants/blogs.constant';
 import { CommandBus } from '@nestjs/cqrs';
-import { BindBlogWithUserCommand } from './use-cases/bind-blog-with-user-use-case';
+import { BindBlogWithUserCommand } from './providers/use-cases/bind-blog-with-user-use-case';
+import { BlogInputModel } from './dto/input-models/blog.input.model';
+import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
+import { CreateNewBlogCommand } from './providers/use-cases/create-new-blog-use-case';
 
+@UseGuards(AuthGuard('basic'))
 @Controller('sa/blogs')
 export class SaBlogsController {
   constructor(
@@ -29,7 +35,14 @@ export class SaBlogsController {
     private commandBus: CommandBus,
   ) {}
 
-  @UseGuards(AuthGuard('basic'))
+  @Post()
+  async createBlog(@Body() blog: BlogInputModel) {
+    const blogId = await this.commandBus.execute(
+      new CreateNewBlogCommand(blog),
+    );
+    return this.blogsQueryRepository.getBlogById(blogId);
+  }
+
   @Get()
   async getBlogs(
     @Query('searchNameTerm') searchNameTerm: string | null = null,
@@ -43,7 +56,6 @@ export class SaBlogsController {
     );
   }
 
-  @UseGuards(AuthGuard('basic'))
   @Put(':blogId/bind-with-user/:userId')
   @HttpCode(204)
   async editBlog(
@@ -59,7 +71,7 @@ export class SaBlogsController {
       throw new NotFoundException('Invalid user id');
     }
     const blogOwner = await this.blogsQueryRepository.getBlogOwner(blogId);
-    if (!blogOwner || blogOwner.userId) {
+    if (blogOwner?.userId) {
       errors.push({ message: WRONG_BLOG_ID, field: 'id' });
     }
     if (errors.length > 0) throw new BadRequestException(errors);
