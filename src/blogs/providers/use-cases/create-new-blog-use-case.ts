@@ -1,11 +1,11 @@
 import { BlogsRepository } from '../blogs.repository';
 import { BlogsQueryRepository } from '../blogs.query.repository';
-import { BlogInputModel } from '../dto/blogInputModel';
+import { BlogInputModel } from '../../dto/input-models/blog.input.model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 
 export class CreateNewBlogCommand {
-  constructor(public inputBlogDto: BlogInputModel, public userId: string) {}
+  constructor(public inputBlogDto: BlogInputModel, public userId?: string) {}
 }
 
 @CommandHandler(CreateNewBlogCommand)
@@ -20,7 +20,9 @@ export class CreateNewBlogUseCase
 
   async execute(command: CreateNewBlogCommand) {
     const { inputBlogDto, userId } = command;
-    const login = (await this.usersQueryRepository.getUserById(userId)).login;
+    let login: string;
+    if (userId)
+      login = (await this.usersQueryRepository.getUserById(userId)).login;
     const createdBlog = await this.blogRepository.createBlogModel();
     createdBlog.initial(inputBlogDto, userId, login);
     return await this.blogRepository.save(createdBlog);
