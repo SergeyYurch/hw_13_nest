@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { CommentsLike, CommentsLikeSchema } from './comments-like.schema';
-import { LikeStatusType } from '../../common/inputModels/likeInputModel';
+import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
 
 @Schema()
 export class Comment {
