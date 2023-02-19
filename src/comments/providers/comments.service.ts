@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { UsersQueryRepository } from '../users/users.query.repository';
+import { UsersQueryRepository } from '../../users/providers/users.query.repository';
 import { CommentsRepository } from './comments.repository';
 
 @Injectable()
