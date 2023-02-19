@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../../users/users.repository';
+import { UsersRepository } from '../../../users/providers/users.repository';
 import { MailService } from '../../../common/mail.service/mail.service';
 import { BadRequestException } from '@nestjs/common';
-import { EMAIL_RESENDING_MESSAGE } from '../../auth.constant';
+import { EMAIL_RESENDING_MESSAGE } from '../../constants/auth.constant';
 
 export class RegistrationEmailResendingCommand {
   constructor(public email: string) {}
