@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../../users/users.repository';
+import { UsersRepository } from '../../../users/providers/users.repository';
 import { Types } from 'mongoose';
 import { AuthService } from '../auth.service';
 
