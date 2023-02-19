@@ -1,6 +1,6 @@
-import { UsersQueryRepository } from '../../users/users.query.repository';
+import { UsersQueryRepository } from '../../../users/providers/users.query.repository';
 import { PostsRepository } from '../posts.repository';
-import { LikeStatusType } from '../../common/inputModels/likeInputModel';
+import { LikeStatusType } from '../../../common/dto/input-models/like.input.model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 export class UpdatePostLikeStatusCommand {
   constructor(
