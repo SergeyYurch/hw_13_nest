@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../users.repository';
-import { UserInputModel } from '../dto/userInputModel';
+import { UserInputModel } from '../../dto/input-models/user-input-model';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserCreatDto } from '../dto/userCreatDto';
+import { UserCreatDto } from '../../dto/user-creat.dto';
 import { UsersService } from '../users.service';
 
 export class CreateNewUserCommand {
