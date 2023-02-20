@@ -63,7 +63,7 @@ export class AuthController {
     @Ip() ip: string,
     @Headers('X-Forwarded-For') title: string,
     @Res() res: Response,
-  ) {
+  ): Promise<{ accessToken: string }> {
     console.log(
       `POST:auth/login - login:${loginDto.loginOrEmail}, pass:${loginDto.password}, ip:${ip}, title: ${title} `,
     );
@@ -74,8 +74,14 @@ export class AuthController {
     console.log(
       `POST:auth/login - user:${loginDto.loginOrEmail}: accessToken: ${accessToken}, refreshToken: ${refreshToken}`,
     );
-    this.authService.getCookiesWithToken(res, refreshToken, expiresDate);
-    return res.json({ accessToken: accessToken });
+
+    res.cookie('refreshToken', refreshToken, {
+      expires: new Date(expiresDate),
+      secure: true,
+      httpOnly: true,
+    });
+    // this.authService.getCookiesWithToken(res, refreshToken, expiresDate);
+    return { accessToken: accessToken };
   }
 
   @SkipThrottle()
