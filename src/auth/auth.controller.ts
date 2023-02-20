@@ -62,7 +62,7 @@ export class AuthController {
     @Body() loginDto: LoginInputModel,
     @Ip() ip: string,
     @Headers('X-Forwarded-For') title: string,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ accessToken: string }> {
     console.log(
       `POST:auth/login - login:${loginDto.loginOrEmail}, pass:${loginDto.password}, ip:${ip}, title: ${title} `,

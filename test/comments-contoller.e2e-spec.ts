@@ -4,7 +4,7 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { disconnect } from 'mongoose';
 import { useContainer } from 'class-validator';

@@ -4,12 +4,12 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { disconnect } from 'mongoose';
 import { useContainer } from 'class-validator';
 import { HttpExceptionFilter } from '../src/common/exception-filters/http-exception.filter';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { UsersQueryRepository } from '../src/users/providers/users.query.repository';
 import { delay } from '../src/common/helpers/helpers';
 import { UsersRepository } from '../src/users/providers/users.repository';
