@@ -21,7 +21,6 @@ import { PostsService } from '../posts/providers/posts.service';
 import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
 import { BlogsQueryRepository } from './providers/blogs.query.repository';
 import { PostsQueryRepository } from '../posts/providers/posts.query.repository';
-import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateNewBlogCommand } from './providers/use-cases/create-new-blog-use-case';
 import { EditBlogCommand } from './providers/use-cases/edit-blog-use-case';
@@ -30,8 +29,9 @@ import { CreateNewPostCommand } from '../posts/providers/use-cases/create-new-po
 import { EditPostCommand } from '../posts/providers/use-cases/edit-post-use-case';
 import { DeletePostCommand } from '../posts/providers/use-cases/delete-post-use-case';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
+import { BearerAuthGuard } from '../auth/guards/bearer-auth.guard';
 
-@UseGuards(AccessTokenGuard)
+@UseGuards(BearerAuthGuard)
 @Controller('blogger/blogs')
 export class BloggerBlogsController {
   constructor(
