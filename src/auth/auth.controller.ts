@@ -64,11 +64,16 @@ export class AuthController {
     @Headers('X-Forwarded-For') title: string,
     @Res() res: Response,
   ) {
+    console.log(
+      `POST:auth/login - login:${loginDto.loginOrEmail}, pass:${loginDto.password}, ip:${ip}, title: ${title} `,
+    );
     const { accessToken, refreshToken, expiresDate } =
       await this.commandBus.execute(
         new SignInCommand(loginDto.loginOrEmail, loginDto.password, ip, title),
       );
-
+    console.log(
+      `POST:auth/login - user:${loginDto.loginOrEmail}: accessToken: ${accessToken}, refreshToken: ${refreshToken}`,
+    );
     this.authService.getCookiesWithToken(res, refreshToken, expiresDate);
     return res.json({ accessToken: accessToken });
   }
