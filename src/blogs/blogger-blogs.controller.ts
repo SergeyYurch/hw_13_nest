@@ -28,10 +28,10 @@ import { DeleteBlogCommand } from './providers/use-cases/delete-blog-use-case';
 import { CreateNewPostCommand } from '../posts/providers/use-cases/create-new-post-use-case';
 import { EditPostCommand } from '../posts/providers/use-cases/edit-post-use-case';
 import { DeletePostCommand } from '../posts/providers/use-cases/delete-post-use-case';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
-import { BearerAuthGuard } from '../auth/guards/bearer-auth.guard';
 
-@UseGuards(BearerAuthGuard)
+@UseGuards(AccessTokenGuard)
 @Controller('blogger/blogs')
 export class BloggerBlogsController {
   constructor(
