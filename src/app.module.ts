@@ -73,6 +73,7 @@ import { BanCommentLikesUseCase } from './comments/providers/use-cases/ban-comme
 import { BanCommentUseCase } from './comments/providers/use-cases/ban-comment-use-case';
 import { BanPostLikesUseCase } from './posts/providers/use-cases/ban-post-likes-use-case';
 import { BanPostsUseCase } from './posts/providers/use-cases/ban-posts-use-case';
+import { BearerAuthStrategy } from './auth/strategies/bearer-auth.strategy';
 
 const blogsUseCases = [
   BindBlogWithUserUseCase,
@@ -188,6 +189,7 @@ const authUseCases = [
     LocalStrategy,
     RefreshTokenStrategy,
     AccessTokenStrategy,
+    BearerAuthStrategy,
     MailService,
 
     //decorators
