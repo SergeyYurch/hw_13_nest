@@ -13,7 +13,6 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    console.log('AccessTokenStrategy is ok');
     //await this.authService.validateSigInStatus(payload.userId);
     return payload;
   }
