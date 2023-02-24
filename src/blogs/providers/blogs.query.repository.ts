@@ -22,9 +22,11 @@ export class BlogsQueryRepository {
     options?: { viewForSa?: boolean; userId?: string },
   ): Promise<PaginatorViewModel<BlogViewModel>> {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
-    let filter = searchNameTerm
+    let filter: any;
+    filter = searchNameTerm
       ? { name: { $regex: searchNameTerm, $options: 'i' } }
       : {};
+    if (!options?.viewForSa) filter = { ...filter, isBanned: false };
     if (options?.userId) {
       filter = { ...filter, ...{ blogOwnerId: options.userId } };
     }
@@ -95,35 +97,28 @@ export class BlogsQueryRepository {
     const { sortBy, sortDirection, pageSize, pageNumber } = paginatorParams;
     let users = blog.bannedUsers;
     if (searchLoginTerm)
-      users = users.filter((u) => u.userLogin.includes(searchLoginTerm));
+      users = users.filter((u) => u.login.includes(searchLoginTerm));
     const totalCount = users.length;
-    console.log(`totalCount:${totalCount}`);
     const pagesCount = Math.ceil(totalCount / pageSize);
-    console.log(`pagesCount:${pagesCount}`);
     const firstIndex = pageSize * (pageNumber - 1);
-    console.log(`firstIndex:${firstIndex}`);
     const lastIndex =
       firstIndex + pageSize <= totalCount - 1
         ? firstIndex + pageSize
         : totalCount;
-    console.log(`lastIndex:${lastIndex}`);
     let sortedUsers = [];
     if (sortBy === 'createdAt') {
-      console.log('sort by createdAt');
       sortedUsers = users.sort((a, b) => {
         if (+a['banDate'] > +b['banDate']) {
-          console.log('1 case');
           return sortDirection === 'asc' ? 1 : -1;
         }
         if (+a['banDate'] < +b['banDate']) {
-          console.log('2 case');
           return sortDirection === 'asc' ? -1 : 1;
         }
         return 0;
       });
     }
 
-    if (['banReason', 'userLogin', 'userId'].includes(sortBy)) {
+    if (['banReason', 'login', 'id'].includes(sortBy)) {
       sortedUsers = users.sort((a, b) => {
         if (a[sortBy] > b[sortBy]) return sortDirection === 'asc' ? 1 : -1;
         if (a[sortBy] < b[sortBy]) return sortDirection === 'asc' ? -1 : 1;
@@ -131,14 +126,12 @@ export class BlogsQueryRepository {
       });
     }
 
-    console.log(sortedUsers);
-
     if (firstIndex > totalCount - 1) sortedUsers = [];
     if (firstIndex <= totalCount)
       sortedUsers = sortedUsers.slice(firstIndex, lastIndex);
     const items = sortedUsers.map((e) => ({
-      id: e.userId,
-      login: e.userLogin,
+      id: e.id,
+      login: e.login,
       banInfo: {
         isBanned: true,
         banDate: e.banDate,
@@ -157,7 +150,7 @@ export class BlogsQueryRepository {
 
   async isUserBanned(userId: string, blogId: string) {
     const blog = await this.BlogModel.findById(blogId);
-    const users = blog.bannedUsers.map((u) => u.userId);
+    const users = blog.bannedUsers.map((u) => u.id);
     return users.includes(userId);
   }
 }
