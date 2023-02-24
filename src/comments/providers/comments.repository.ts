@@ -14,7 +14,14 @@ export class CommentsRepository {
   }
 
   async getCommentsModelsByUserId(userId: string) {
-    return this.CommentModel.find({ userId });
+    return this.CommentModel.find({ commentatorId: userId });
+  }
+
+  async getCommentsModelsForBlogByCommentatorId(
+    commentatorId: string,
+    blogId: string,
+  ) {
+    return this.CommentModel.find({ commentatorId, blogId });
   }
 
   async getCommentsModelsByLikeUserId(userId: string) {
