@@ -26,7 +26,7 @@ export class UpdateCommentUseCase
     const comment = await this.commentsRepository.getCommentModelById(
       commentId,
     );
-    if (userId !== comment.userId) {
+    if (userId !== comment.commentatorId) {
       throw new ForbiddenException('Forbidden');
     }
     comment.updateContent(commentDto.content);
