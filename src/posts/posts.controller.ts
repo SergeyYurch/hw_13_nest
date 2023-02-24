@@ -11,6 +11,7 @@ import {
   InternalServerErrorException,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PaginatorInputType } from '../common/dto/input-models/paginator.input.type';
 import { castQueryParams } from '../common/helpers/helpers';
@@ -25,12 +26,14 @@ import { CommandBus } from '@nestjs/cqrs';
 import { UpdatePostLikeStatusCommand } from './providers/use-cases/update-post-like-status-use-case';
 import { CreateCommentCommand } from '../comments/providers/use-cases/create-comment-use-case';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
+import { PostsService } from './providers/posts.service';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
     private commentsQueryRepository: CommentsQueryRepository,
+    private postsService: PostsService,
     private commandBus: CommandBus,
   ) {}
 
@@ -67,10 +70,11 @@ export class PostsController {
     return this.commentsQueryRepository.getCommentsByPostId(
       paginatorParams,
       postId,
-      userId,
+      { userId },
     );
   }
 
+  //Create comment for a specific post
   @UseGuards(AccessTokenGuard)
   @Post(':postId/comments')
   async createCommentForPost(
@@ -81,10 +85,14 @@ export class PostsController {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
+    const access = await this.postsService.accessCheck(userId, postId);
+    if (access === 'forbidden') {
+      throw new ForbiddenException('BAN');
+    }
     const commentId = await this.commandBus.execute(
       new CreateCommentCommand(commentDto.content, userId, postId),
     );
-    return this.commentsQueryRepository.getCommentById(commentId, userId);
+    return this.commentsQueryRepository.getCommentById(commentId, { userId });
   }
 
   @Get()
