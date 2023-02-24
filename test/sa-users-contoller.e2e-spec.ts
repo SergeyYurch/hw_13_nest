@@ -26,6 +26,53 @@ const user3 = {
   password: 'password3',
   email: 'email3@gmail.com',
 };
+const user4 = {
+  login: 'user4',
+  password: 'password4',
+  email: 'email5@gmail.com',
+};
+const user5 = {
+  login: 'user5',
+  password: 'password5',
+  email: 'email5@gmail.com',
+};
+const user6 = {
+  login: 'user6',
+  password: 'password6',
+  email: 'email6@gmail.com',
+};
+const user7 = {
+  login: 'user7',
+  password: 'password7',
+  email: 'email7@gmail.com',
+};
+const user8 = {
+  login: 'user8',
+  password: 'password8',
+  email: 'email8@gmail.com',
+};
+const user9 = {
+  login: 'user9',
+  password: 'password9',
+  email: 'email9@gmail.com',
+};
+const user10 = {
+  login: 'user10',
+  password: 'password10',
+  email: 'email10@gmail.com',
+};
+
+const user11 = {
+  login: 'user11',
+  password: 'password11',
+  email: 'email11@gmail.com',
+};
+
+const user12 = {
+  login: 'user12',
+  password: 'password12',
+  email: 'email12@gmail.com',
+};
 const blog1 = {
   name: 'blog1',
   description: 'description1',
@@ -130,8 +177,61 @@ describe('UsersController (e2e)', () => {
     const newUser2 = await request(app.getHttpServer())
       .post('/sa/users')
       .auth('admin', 'qwerty', { type: 'basic' })
-      .send(user2);
+      .send(user2)
+      .expect(201);
     user2Id = newUser2.body.id;
+
+    //create other users
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user3)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user4)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user5)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user6)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user7)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user8)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user9)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user10)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user11)
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user12)
+      .expect(201);
   });
   it('POST: [HOST]/sa/users should return code 400 and error message for field login', async () => {
     return request(app.getHttpServer())
