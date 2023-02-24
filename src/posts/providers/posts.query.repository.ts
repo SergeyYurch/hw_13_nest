@@ -53,6 +53,11 @@ export class PostsQueryRepository {
     return this.getPostViewModel(postInDb, userId);
   }
 
+  async getPostsBloggerId(postId: string): Promise<string> {
+    const postInDb = await this.PostModel.findById(postId);
+    return postInDb.bloggerId;
+  }
+
   getPostViewModel(post: Post, userId?: string): PostViewModel {
     const likes = post.likes.filter(
       (l) => l.likeStatus === 'Like' && !l.userIsBanned,
