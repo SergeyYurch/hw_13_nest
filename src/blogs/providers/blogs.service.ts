@@ -19,8 +19,13 @@ export class BlogsService {
 
   async checkBlogOwner(blogId: string, userId: string) {
     const owner = await this.blogsQueryRepository.getBlogOwner(blogId);
-    if (owner.userId !== userId) {
+    if (owner?.userId !== userId) {
       throw new ForbiddenException('Forbidden');
     }
+  }
+
+  async isBlogOwner(blogId: string, userId: string) {
+    const owner = await this.blogsQueryRepository.getBlogOwner(blogId);
+    return owner.userId === userId;
   }
 }
