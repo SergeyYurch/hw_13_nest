@@ -56,6 +56,7 @@ describe('BloggerBlogController (e2e)', () => {
   let post1Id: string;
   let post2Id: string;
   let post3Id: string;
+  let post4Id: string;
   let accessTokenUser1: string;
   let accessTokenUser2: string;
   let accessTokenUser3: string;
@@ -149,7 +150,7 @@ describe('BloggerBlogController (e2e)', () => {
     accessTokenUser3 = sigInUser3.body.accessToken;
   });
 
-  //POST blogger/blogs - Create new blog
+  //POST blogger/blogs - Create new blog (USER1 - is blogger)
   it('POST:[HOST]/blogger/blogs: should return code 401 "Unauthorized" for unauthorized request', async () => {
     await request(app.getHttpServer())
       .post('/blogger/blogs')
@@ -359,7 +360,7 @@ describe('BloggerBlogController (e2e)', () => {
     });
   });
 
-  //DELETE:[HOST]/blogger/blogs/{:id}: - delete blog by ID
+  //DELETE:[HOST]/blogger/blogs/{:id}: - delete blog1 by ID
   it('DELETE:[HOST]/blogger/blogs/{:id}: should return code 401 "Unauthorized" for unauthorized request', async () => {
     await request(app.getHttpServer()).delete('/blogger/blogs/1').expect(401);
   });
@@ -389,7 +390,7 @@ describe('BloggerBlogController (e2e)', () => {
     expect(blogs.body.totalCount).toBe(2);
   });
 
-  //PUT:[HOST]/blogger/blogs/{:id} - edit blog
+  //PUT:[HOST]/blogger/blogs/{:id} - edit blog2
   it('PUT:[HOST]/blogger/blogs/{:id}: should return code 401 "Unauthorized" for unauthorized request', async () => {
     await request(app.getHttpServer())
       .put(`/blogger/blogs/${blog2Id}`)
@@ -416,11 +417,9 @@ describe('BloggerBlogController (e2e)', () => {
         websiteUrl: 'https://youtube5.com',
       })
       .expect(204);
-
     const changedBlog = await request(app.getHttpServer()).get(
       `/blogs/${blog2Id}`,
     );
-
     expect(changedBlog.body).toEqual({
       id: expect.any(String),
       name: 'blog5',
@@ -453,7 +452,7 @@ describe('BloggerBlogController (e2e)', () => {
       .expect(400);
   });
 
-  //POST:[HOST]/blogger/blogs/{:blogId}/posts  - Create new post for specific blog
+  //POST:[HOST]/blogger/blogs/{:blogId}/posts  - Create new post for blog3
   it('POST:[HOST]/blogger/blogs/{:blogId}/posts: should return code 401 "Unauthorized" for unauthorized request', async () => {
     await request(app.getHttpServer())
       .post(`/blogger/blogs/${blog2Id}/posts`)
@@ -486,7 +485,7 @@ describe('BloggerBlogController (e2e)', () => {
       })
       .expect(404);
   });
-  it('POST:[HOST]/blogger/blogs: should return code 400 if the inputModel has incorrect values', async () => {
+  it('POST:[HOST]/blogger/blogs/{:blogId}/posts: should return code 400 if the inputModel has incorrect values', async () => {
     const newPost1 = await request(app.getHttpServer())
       .post(`/blogger/blogs/${blog3Id}/posts`)
       .auth(accessTokenUser1, { type: 'bearer' })
@@ -496,7 +495,7 @@ describe('BloggerBlogController (e2e)', () => {
       })
       .expect(400);
   });
-  it('POST:[HOST]/blogger/blogs: should return code 201 and newPost for correct input data', async () => {
+  it('POST:[HOST]/blogger/blogs/{:blogId}/posts: should return code 201 and newPost for correct input data', async () => {
     const newPost1 = await request(app.getHttpServer())
       .post(`/blogger/blogs/${blog3Id}/posts`)
       .auth(accessTokenUser1, { type: 'bearer' })
@@ -592,7 +591,7 @@ describe('BloggerBlogController (e2e)', () => {
       .expect(204);
   });
 
-  //DELETE:[HOST]/blogger/blogs/posts/{:postId}
+  //DELETE:[HOST]/blogger/blogs/posts/{:postId} delete Blog3
   it('DELETE:[HOST]/blogger/blogs/posts/{:postId} : should return code 401 "Unauthorized" for unauthorized request', async () => {
     const newPost1 = await request(app.getHttpServer())
       .delete(`/blogger/blogs/${blog3Id}/posts/${post1Id}`)
@@ -631,5 +630,78 @@ describe('BloggerBlogController (e2e)', () => {
         content: 'content1-edit',
       })
       .expect(404);
+  });
+
+  //GET:[HOST]/blogger/blogs/comments -  Returns all comments for all posts inside all current user blogs
+  //additional data preparation...
+  it('POST:[HOST]/blogger/blogs: user1 create post4 for blog2', async () => {
+    const newPost4 = await request(app.getHttpServer())
+      .post(`/blogger/blogs/${blog2Id}/posts`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        title: 'title4',
+        shortDescription: 'shortDescription4',
+        content: 'content4',
+      })
+      .expect(201);
+    post4Id = newPost4.body.id;
+  });
+  it('POST: [HOST]/posts/{:postId}/comments - User2 & User3 create comment for blog2/post4', async () => {
+    await request(app.getHttpServer())
+      .post(`/posts/${post4Id}/comments`)
+      .auth(accessTokenUser2, { type: 'bearer' })
+      .send({
+        content: 'User2 create comment: comment',
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post(`/posts/${post4Id}/comments`)
+      .auth(accessTokenUser3, { type: 'bearer' })
+      .send({
+        content: 'User3 create comment: comment',
+      })
+      .expect(201);
+  });
+
+  //main tests
+  it('GET:[HOST]/blogger/blogs/comments: should return code 401 ', async () => {
+    const user1Blogs = await request(app.getHttpServer())
+      .get('/blogger/blogs/comments')
+      .expect(401);
+  });
+  it('GET:[HOST]/blogger/blogs/comments: should return code 200 and array with 2 elements with default paginator', async () => {
+    const user1Blogs = await request(app.getHttpServer())
+      .get('/blogger/blogs/comments')
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .expect(200);
+
+    expect(user1Blogs.body.totalCount).toBe(2);
+    expect(user1Blogs.body.items[0]).toEqual({
+      id: expect.any(String),
+      content: 'User3 create comment: comment',
+      commentatorInfo: {
+        userId: user3Id,
+        userLogin: 'user3',
+      },
+      createdAt: expect.any(String),
+      postInfo: {
+        id: post4Id,
+        title: 'title4',
+        blogId: blog2Id,
+        blogName: 'blog5',
+      },
+    });
+    expect(user1Blogs.body.items[1].commentatorInfo.userId).toBe(user2Id);
+  });
+  it('GET:[HOST]/blogger/blogs/comments: should return code 200 and array with 2 elements with queryParams:pageSize=1&sortDirection=asc', async () => {
+    const user1Blogs = await request(app.getHttpServer())
+      .get('/blogger/blogs/comments?pageSize=1&sortDirection=asc')
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .expect(200);
+
+    expect(user1Blogs.body.totalCount).toBe(2);
+    expect(user1Blogs.body.items[0].commentatorInfo.userId).toBe(user2Id);
+    expect(user1Blogs.body.items[1]).toBeUndefined();
   });
 });
