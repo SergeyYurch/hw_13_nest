@@ -73,18 +73,24 @@ import { BanCommentLikesUseCase } from './comments/providers/use-cases/ban-comme
 import { BanCommentUseCase } from './comments/providers/use-cases/ban-comment-use-case';
 import { BanPostLikesUseCase } from './posts/providers/use-cases/ban-post-likes-use-case';
 import { BanPostsUseCase } from './posts/providers/use-cases/ban-posts-use-case';
+import { BloggerBanUserUseCase } from './blogs/providers/use-cases/blogger-ban-user-use-case';
+import { BloggerUsersController } from './users/blogger-users.controller';
+import { BanBlogCommentByCommentatorIdUseCase } from './comments/providers/use-cases/ban-blog--comments-by-user-id--use-case';
+import { BanBlogUseCase } from './blogs/providers/use-cases/ban-blog-use-case';
 
 const blogsUseCases = [
   BindBlogWithUserUseCase,
   CreateNewBlogUseCase,
   EditBlogUseCase,
   DeleteBlogUseCase,
+  BanBlogUseCase,
 ];
 const usersUseCases = [
   CreateNewUserUseCase,
   DeleteUserUseCase,
   RegistrationUserUseCase,
   BanUserUseCase,
+  BloggerBanUserUseCase,
 ];
 const postsUseCases = [
   EditPostUseCase,
@@ -97,6 +103,7 @@ const postsUseCases = [
 ];
 
 const commentsUseCases = [
+  BanBlogCommentByCommentatorIdUseCase,
   CreateCommentUseCase,
   DeleteCommentUseCase,
   UpdateCommentUseCase,
@@ -166,6 +173,7 @@ const authUseCases = [
     AuthController,
     UsersController,
     SaUsersController,
+    BloggerUsersController,
     BlogsController,
     SaBlogsController,
     BloggerBlogsController,
