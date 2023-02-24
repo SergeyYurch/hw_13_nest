@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { CommentsLike, CommentsLikeSchema } from './comments-like.schema';
 import { LikeStatusType } from '../../common/dto/input-models/like.input.model';
+import { CreatedCommentDto } from '../dto/created-comment.dto';
 
 @Schema()
 export class Comment {
@@ -14,10 +15,22 @@ export class Comment {
   postId: string;
 
   @Prop({ required: true })
-  userId: string;
+  postTitle: string;
 
   @Prop({ required: true })
-  userLogin: string;
+  blogId: string;
+
+  @Prop({ required: true })
+  blogOwnerId: string;
+
+  @Prop({ required: true })
+  blogName: string;
+
+  @Prop({ required: true })
+  commentatorId: string;
+
+  @Prop({ required: true })
+  commentatorLogin: string;
 
   @Prop({ default: false })
   isBanned: boolean;
@@ -31,11 +44,15 @@ export class Comment {
   @Prop({ type: [CommentsLikeSchema], default: [] })
   likes: CommentsLike[];
 
-  initial(content: string, userId: string, userLogin: string, postId: string) {
-    this.content = content;
-    this.postId = postId;
-    this.userId = userId;
-    this.userLogin = userLogin;
+  initial(createdComment: CreatedCommentDto) {
+    this.content = createdComment.content;
+    this.postId = createdComment.postId;
+    this.postTitle = createdComment.postTitle;
+    this.blogId = createdComment.blogId;
+    this.blogName = createdComment.blogName;
+    this.blogOwnerId = createdComment.blogId;
+    this.commentatorId = createdComment.commentatorId;
+    this.commentatorLogin = createdComment.commentatorLogin;
     this.createdAt = new Date();
     this.updatedAt = new Date();
   }
