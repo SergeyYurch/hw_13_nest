@@ -36,6 +36,43 @@ const user5 = {
   password: 'password5',
   email: 'email5@gmail.com',
 };
+const user6 = {
+  login: 'user6',
+  password: 'password6',
+  email: 'email6@gmail.com',
+};
+const user7 = {
+  login: 'user7',
+  password: 'password7',
+  email: 'email7@gmail.com',
+};
+const user8 = {
+  login: 'user8',
+  password: 'password8',
+  email: 'email8@gmail.com',
+};
+const user9 = {
+  login: 'user9',
+  password: 'password9',
+  email: 'email9@gmail.com',
+};
+const user10 = {
+  login: 'user10',
+  password: 'password10',
+  email: 'email10@gmail.com',
+};
+
+const user11 = {
+  login: 'user11',
+  password: 'password11',
+  email: 'email11@gmail.com',
+};
+
+const user12 = {
+  login: 'user12',
+  password: 'password12',
+  email: 'email12@gmail.com',
+};
 
 const blog1 = {
   name: 'blog1',
@@ -61,6 +98,13 @@ describe('UsersController (e2e)', () => {
   let user3Id: string;
   let user4Id: string;
   let user5Id: string;
+  let user6Id: string;
+  let user7Id: string;
+  let user8Id: string;
+  let user9Id: string;
+  let user10Id: string;
+  let user11Id: string;
+  let user12Id: string;
 
   let blog1Id: string;
   let blog2Id: string;
@@ -155,6 +199,55 @@ describe('UsersController (e2e)', () => {
       .auth('admin', 'qwerty', { type: 'basic' })
       .send(user5);
     user5Id = newUser5.body.id;
+
+    //create new user6
+    const newUser6 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user6);
+    user6Id = newUser6.body.id;
+
+    //create new user7
+    const newUser7 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user7);
+    user7Id = newUser7.body.id;
+
+    //create new user8
+    const newUser8 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user8);
+    user8Id = newUser8.body.id;
+
+    //create new user9
+    const newUser9 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user9);
+    user9Id = newUser9.body.id;
+
+    //create new user10
+    const newUser10 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user10);
+    user10Id = newUser10.body.id;
+
+    //create new user11
+    const newUser11 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user11);
+    user11Id = newUser11.body.id;
+
+    //create new user12
+    const newUser12 = await request(app.getHttpServer())
+      .post('/sa/users')
+      .auth('admin', 'qwerty', { type: 'basic' })
+      .send(user12);
+    user12Id = newUser12.body.id;
   });
   it('POST:[HOST]/auth/login: all users login to system', async () => {
     const sigInUser1 = await request(app.getHttpServer())
@@ -352,7 +445,7 @@ describe('UsersController (e2e)', () => {
       })
       .expect(403);
   });
-  it('PUT: [HOST]/blogger/users/${:userId}/ban: ban USER4, USER5 - should return code 204  and users should be banned', async () => {
+  it('PUT: [HOST]/blogger/users/${:userId}/ban: ban USER4, USER5, user6-user7 - should return code 204  and users should be banned', async () => {
     await request(app.getHttpServer())
       .put(`/blogger/users/${user4Id}/ban`)
       .auth(accessTokenUser1, { type: 'bearer' })
@@ -369,6 +462,76 @@ describe('UsersController (e2e)', () => {
       .send({
         isBanned: true,
         banReason: 'banReason for user2 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user6Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user6 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user7Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user7 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user8Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user8 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user9Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user9 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user10Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user10 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user11Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user11 is stringstringstringst',
+        blogId: blog1Id,
+      })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .put(`/blogger/users/${user12Id}/ban`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .send({
+        isBanned: true,
+        banReason: 'banReason for user12 is stringstringstringst',
         blogId: blog1Id,
       })
       .expect(204);
@@ -410,25 +573,6 @@ describe('UsersController (e2e)', () => {
       .get(`/comments/${comment5Id}`)
       .expect(404);
   });
-  // it('GET: /comments/{:commentId}  /posts/${post1Id}/comments - USER1 as blogger, should get code 200 and all comments for his blog1', async () => {
-  //   const getCommentResult = await request(app.getHttpServer())
-  //     .get(`/comments/${comment2Id}`)
-  //     .auth(accessTokenUser1, { type: 'bearer' })
-  //     .expect(200);
-  //   expect(getCommentResult.body.commentatorInfo.userId).toBe(user2Id);
-  //
-  //   const getCommentForPost1Result = await request(app.getHttpServer())
-  //     .get(`/posts/${post1Id}/comments`)
-  //     .auth(accessTokenUser1, { type: 'bearer' })
-  //     .expect(200);
-  //   expect(getCommentForPost1Result.body.items.length).toBe(3);
-  //
-  //   const getCommentForPost2Result = await request(app.getHttpServer())
-  //     .get(`/posts/${post1Id}/comments`)
-  //     .auth(accessTokenUser1, { type: 'bearer' })
-  //     .expect(200);
-  //   expect(getCommentForPost2Result.body.items.length).toBe(2);
-  // });
 
   //try to create comments
   it('POST: [HOST]/posts/{:postId}/comments -USER5 try created comment for blog1/post1, blog1/post2 should return 403', async () => {
@@ -475,11 +619,11 @@ describe('UsersController (e2e)', () => {
       .auth(accessTokenUser1, { type: 'bearer' })
       .expect(200);
 
-    expect(users.body.totalCount).toBe(2);
-    expect(users.body.items.length).toBe(2);
+    expect(users.body.totalCount).toBe(9);
+    expect(users.body.items.length).toBe(9);
     expect(users.body.items[0]).toEqual({
-      id: user5Id,
-      login: 'user5',
+      id: user12Id,
+      login: 'user12',
       banInfo: {
         isBanned: true,
         banDate: expect.any(String),
@@ -488,8 +632,8 @@ describe('UsersController (e2e)', () => {
     });
 
     expect(users.body.items[1]).toEqual({
-      id: user4Id,
-      login: 'user4',
+      id: user11Id,
+      login: 'user11',
       banInfo: {
         isBanned: true,
         banDate: expect.any(String),
@@ -503,7 +647,7 @@ describe('UsersController (e2e)', () => {
       .auth(accessTokenUser1, { type: 'bearer' })
       .expect(200);
 
-    expect(users.body.totalCount).toBe(2);
+    expect(users.body.totalCount).toBe(9);
     expect(users.body.pageSize).toBe(1);
     expect(users.body.items.length).toBe(1);
     expect(users.body.items[0]).toEqual({
@@ -528,6 +672,28 @@ describe('UsersController (e2e)', () => {
     expect(users.body.items[0]).toEqual({
       id: user4Id,
       login: 'user4',
+      banInfo: {
+        isBanned: true,
+        banDate: expect.any(String),
+        banReason: expect.any(String),
+      },
+    });
+  });
+
+  it('GET: [HOST]/blogger/users/blog/:blogId: should return code 200 and array with 1 elements with queryParams:pageSize=8&pageNumber=1&sortBy=login&sortDirection=asc', async () => {
+    const users = await request(app.getHttpServer())
+      .get(
+        `/blogger/users/blog/${blog1Id}?pageSize=6&pageNumber=1&sortBy=login&sortDirection=asc`,
+      )
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .expect(200);
+
+    expect(users.body.totalCount).toBe(9);
+    expect(users.body.pageSize).toBe(6);
+    expect(users.body.items).toHaveLength(6);
+    expect(users.body.items[0]).toEqual({
+      id: user10Id,
+      login: 'user10',
       banInfo: {
         isBanned: true,
         banDate: expect.any(String),
