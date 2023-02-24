@@ -30,6 +30,7 @@ import { EditPostCommand } from '../posts/providers/use-cases/edit-post-use-case
 import { DeletePostCommand } from '../posts/providers/use-cases/delete-post-use-case';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
+import { CommentsQueryRepository } from '../comments/providers/comments.query.repository';
 
 @UseGuards(AccessTokenGuard)
 @Controller('blogger/blogs')
@@ -39,8 +40,18 @@ export class BloggerBlogsController {
     private postService: PostsService,
     private blogsQueryRepository: BlogsQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
+    private commentsQueryRepository: CommentsQueryRepository,
     private commandBus: CommandBus,
   ) {}
+
+  @Get('comments')
+  async getComments(@Query() query, @CurrentUserId() bloggerId: string) {
+    const paginatorParams = castQueryParams(query);
+    return await this.commentsQueryRepository.getBloggersComments(
+      paginatorParams,
+      bloggerId,
+    );
+  }
 
   @Put(':blogId')
   @HttpCode(204)
@@ -95,7 +106,6 @@ export class BloggerBlogsController {
     @Query() query,
     @CurrentUserId() userId: string,
   ) {
-    console.log(`[getBlogs] userId: ${userId}`);
     const paginatorParams = castQueryParams(query);
     return await this.blogsQueryRepository.findBlogs(
       paginatorParams,
@@ -133,12 +143,9 @@ export class BloggerBlogsController {
     if (!(await this.postsQueryRepository.checkPostId(postId))) {
       throw new NotFoundException('Invalid postID');
     }
-    const result = await this.commandBus.execute(
+    await this.commandBus.execute(
       new EditPostCommand(userId, blogId, postId, postChanges),
     );
-    if (!result) {
-      throw new InternalServerErrorException('Post not changed');
-    }
   }
 
   @Delete(':blogId/posts/:postId')
