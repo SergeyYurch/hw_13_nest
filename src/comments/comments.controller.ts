@@ -37,7 +37,7 @@ export class CommentsController {
     if (!(await this.commentsQueryRepository.checkCommentId(commentId))) {
       throw new NotFoundException('Invalid postID');
     }
-    return this.commentsQueryRepository.getCommentById(commentId, userId);
+    return this.commentsQueryRepository.getCommentById(commentId, { userId });
   }
 
   @UseGuards(AccessTokenGuard)
