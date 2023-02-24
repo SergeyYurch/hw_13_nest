@@ -62,6 +62,7 @@ describe('CommentsController (e2e)', () => {
   let accessTokenUser1: string;
   let accessTokenUser2: string;
   let accessTokenUser3: string;
+  //setup
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -385,7 +386,6 @@ describe('CommentsController (e2e)', () => {
       .auth(accessTokenUser1, { type: 'bearer' })
       .expect(404);
   });
-
   it('GET: [HOST]/comments/{:commentId} - should return code 200 and comment (query from USER1)', async () => {
     const getCommentResult = await request(app.getHttpServer())
       .get(`/comments/${comment2Id}`)
