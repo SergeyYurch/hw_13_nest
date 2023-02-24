@@ -143,7 +143,6 @@ export class User {
       this.deviceSessions.push(deviceSession);
       return true;
     } catch (e) {
-      console.log(e);
       return false;
     }
   }
