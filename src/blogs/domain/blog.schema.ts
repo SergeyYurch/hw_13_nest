@@ -17,10 +17,10 @@ const BlogOwnerInfoSchema = SchemaFactory.createForClass(BlogOwnerInfo);
 @Schema()
 export class BannedUser {
   @Prop({ required: true })
-  userId: string;
+  id: string;
 
   @Prop({ required: true })
-  userLogin: string;
+  login: string;
 
   @Prop({ required: true })
   banReason: string;
@@ -93,24 +93,17 @@ export class Blog {
     this.banDate = new Date();
   }
 
-  banUser(
-    userId: string,
-    userLogin: string,
-    banReason: string,
-    isBanned: boolean,
-  ) {
+  banUser(id: string, login: string, banReason: string, isBanned: boolean) {
     if (isBanned) {
       this.bannedUsers.push({
-        userId,
-        userLogin,
+        id,
+        login,
         banDate: new Date(),
         banReason,
       });
     }
     if (!isBanned) {
-      this.bannedUsers = this.bannedUsers.filter(
-        (item) => item.userId !== userId,
-      );
+      this.bannedUsers = this.bannedUsers.filter((item) => item.id !== id);
     }
   }
 }
