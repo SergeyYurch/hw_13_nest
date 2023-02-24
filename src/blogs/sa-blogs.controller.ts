@@ -21,8 +21,9 @@ import { WRONG_BLOG_ID } from './constants/blogs.constant';
 import { CommandBus } from '@nestjs/cqrs';
 import { BindBlogWithUserCommand } from './providers/use-cases/bind-blog-with-user-use-case';
 import { BlogInputModel } from './dto/input-models/blog.input.model';
-import { CurrentUserId } from '../common/decorators/current-user-id.param.decorator';
 import { CreateNewBlogCommand } from './providers/use-cases/create-new-blog-use-case';
+import { BanBlogInputModel } from './dto/input-models/ban-blog.input.model';
+import { BanBlogCommand } from './providers/use-cases/ban-blog-use-case';
 
 @UseGuards(AuthGuard('basic'))
 @Controller('sa/blogs')
@@ -52,7 +53,7 @@ export class SaBlogsController {
     return await this.blogsQueryRepository.findBlogs(
       paginatorParams,
       searchNameTerm,
-      { ownerInclude: true },
+      { viewForSa: true },
     );
   }
 
@@ -76,5 +77,19 @@ export class SaBlogsController {
     }
     if (errors.length > 0) throw new BadRequestException(errors);
     await this.commandBus.execute(new BindBlogWithUserCommand(blogId, userId));
+  }
+
+  @Put(':blogId/ban')
+  @HttpCode(204)
+  async banBlog(
+    @Param('blogId') blogId: string,
+    @Body() banStatus: BanBlogInputModel,
+  ) {
+    if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
+      throw new NotFoundException('Invalid user id');
+    }
+    await this.commandBus.execute(
+      new BanBlogCommand(blogId, banStatus.isBanned),
+    );
   }
 }
