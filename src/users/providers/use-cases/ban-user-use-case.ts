@@ -26,7 +26,7 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand> {
     const { isBanned, banReason } = banUserInputModel;
     await this.commandBus.execute(new BanCommentCommand(userId, isBanned));
     await this.commandBus.execute(new BanCommentLikesCommand(userId, isBanned));
-    await this.commandBus.execute(new BanPostsCommand(userId, isBanned));
+    await this.commandBus.execute(new BanPostsCommand({ userId, isBanned }));
     await this.commandBus.execute(new BanPostLikesCommand(userId, isBanned));
     const userModel = await this.usersRepository.getUserModel(userId);
     await userModel.ban(isBanned, banReason, 'saId');
