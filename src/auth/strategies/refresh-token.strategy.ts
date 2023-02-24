@@ -29,12 +29,10 @@ export class RefreshTokenStrategy extends PassportStrategy(
     if (req.cookies && 'refreshToken' in req.cookies) {
       return req.cookies['refreshToken'];
     }
-    console.log('[ RefreshTokenStrategy]: refreshToken not found');
     return null;
   }
 
   async validate(payload: any) {
-    console.log('refresh-strategy/validate');
     const jwtPayload: JwtPayloadType = <JwtPayloadType>(
       this.jwtService.decode(payload.cookies['refreshToken'])
     );
