@@ -365,6 +365,12 @@ describe('UsersController (e2e)', () => {
     expect(getPostsResult.body.totalCount).toBe(2);
     expect(getPostsResult.body.items.length).toBe(2);
   });
+  it('GET:[HOST]/blogs: should return array with 2 blogs', async () => {
+    const blogs = await request(app.getHttpServer()).get('/blogs').expect(200);
+    expect(blogs.body.totalCount).toBe(2);
+    expect(blogs.body.items).toHaveLength(2);
+  });
+
   //unban blog
   it('PUT: [HOST]/sa/blogs/{:id}/ban: should return code 204 for correct data and blog should be unbanned', async () => {
     await request(app.getHttpServer())
