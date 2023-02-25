@@ -50,7 +50,7 @@ export class BlogsQueryRepository {
 
   async getBlogById(id: string): Promise<BlogViewModel | null> {
     const blog = await this.BlogModel.findById(id);
-    if (!blog) return null;
+    if (!blog || blog.isBanned) return null;
     return this.getBlogViewModel(blog);
   }
 
