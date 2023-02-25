@@ -282,9 +282,19 @@ describe('UsersController (e2e)', () => {
     expect(getPostsResult.body.totalCount).toBe(3);
     expect(getPostsResult.body.items.length).toBe(3);
   });
+  it('GET:[HOST]/blogs: should return array with 3 blogs', async () => {
+    const blogs = await request(app.getHttpServer()).get('/blogs').expect(200);
+    expect(blogs.body.totalCount).toBe(3);
+    expect(blogs.body.items).toHaveLength(3);
+  });
+  it('GET:[HOST]/blogs/id: should return blog1', async () => {
+    const blogs = await request(app.getHttpServer())
+      .get(`/blogs/${blog1Id}`)
+      .expect(200);
+    expect(blogs.body.id).toBe(blog1Id);
+  });
 
   //checking pagination
-
   it('GET: [HOST]/sa/blogs/ should return code 201 and all blogs with sortDirection=asc', async () => {
     const getBlogsResult = await request(app.getHttpServer())
       .get(`/sa/blogs?sortDirection=asc`)
@@ -370,9 +380,13 @@ describe('UsersController (e2e)', () => {
     expect(blogs.body.totalCount).toBe(2);
     expect(blogs.body.items).toHaveLength(2);
   });
-
+  it('GET:[HOST]/blogs/id: should return 404', async () => {
+    const blogs = await request(app.getHttpServer())
+      .get(`/blogs/${blog1Id}`)
+      .expect(404);
+  });
   //unban blog
-  it('PUT: [HOST]/sa/blogs/{:id}/ban: should return code 204 for correct data and blog should be unbanned', async () => {
+  it('PUT: [HOST]/sa/blogs/{:id}/ban: should return code 204, and blog1 should be unbanned', async () => {
     await request(app.getHttpServer())
       .put(`/sa/blogs/${blog1Id}/ban`)
       .send({ isBanned: false })
@@ -381,6 +395,17 @@ describe('UsersController (e2e)', () => {
   });
 
   //check allowed unbanned blogs/posts
+  it('GET:[HOST]/blogs/id: should return blog1', async () => {
+    const blogs = await request(app.getHttpServer())
+      .get(`/blogs/${blog1Id}`)
+      .expect(200);
+    expect(blogs.body.id).toBe(blog1Id);
+  });
+  it('GET:[HOST]/blogs: should return array with 3 blogs', async () => {
+    const blogs = await request(app.getHttpServer()).get('/blogs').expect(200);
+    expect(blogs.body.totalCount).toBe(3);
+    expect(blogs.body.items).toHaveLength(3);
+  });
   it('GET: [HOST]/sa/blogs/ check if blog1 is banned', async () => {
     const getBlogsResult = await request(app.getHttpServer())
       .get(`/sa/blogs?searchNameTerm=blog1`)
