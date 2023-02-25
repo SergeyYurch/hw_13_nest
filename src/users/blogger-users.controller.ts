@@ -15,12 +15,8 @@ import {
 } from '@nestjs/common';
 import { castQueryParams } from '../common/helpers/helpers';
 import { ValidateObjectIdTypePipe } from '../common/pipes/validate-object-id-type.pipe';
-import { AuthGuard } from '@nestjs/passport';
 import { UsersQueryRepository } from './providers/users.query.repository';
-import { CreateNewUserUseCase } from './providers/use-cases/create-new-user-use-case';
-import { DeleteUserCommand } from './providers/use-cases/delete-user-use-case';
 import { CommandBus } from '@nestjs/cqrs';
-import { UsersService } from './providers/users.service';
 import { BloggerBanUserInputModel } from './dto/input-models/blogger-ban -user-input-model.dto';
 import { BloggerBanUserCommand } from '../blogs/providers/use-cases/blogger-ban-user-use-case';
 import { BlogsQueryRepository } from '../blogs/providers/blogs.query.repository';
@@ -33,9 +29,7 @@ import { CurrentUserId } from '../common/decorators/current-user-id.param.decora
 export class BloggerUsersController {
   constructor(
     private commandBus: CommandBus,
-    private usersService: UsersService,
     private blogsService: BlogsService,
-    private createNewUserUseCase: CreateNewUserUseCase,
     private usersQueryRepository: UsersQueryRepository,
     private blogsQueryRepository: BlogsQueryRepository,
   ) {}
@@ -68,6 +62,12 @@ export class BloggerUsersController {
     @Param('blogId', ValidateObjectIdTypePipe) blogId: string,
     @CurrentUserId() bloggerId: string,
   ) {
+    if (!(await this.blogsQueryRepository.checkBlogId(blogId))) {
+      throw new NotFoundException('Invalid blog ID');
+    }
+    if (!(await this.blogsService.isBlogOwner(blogId, bloggerId))) {
+      throw new ForbiddenException('Forbidden');
+    }
     const paginatorParams = castQueryParams(query);
     return await this.blogsQueryRepository.getBannedUsers(
       paginatorParams,
