@@ -611,7 +611,14 @@ describe('UsersController (e2e)', () => {
   it('GET: [HOST]/blogger/users/blog/:blogId: should return code 403 "Unauthorized" for unauthorized request', async () => {
     const users = await request(app.getHttpServer())
       .get(`/blogger/users/blog/${blog1Id}`)
-      .expect(401);
+      .auth(accessTokenUser2, { type: 'bearer' })
+      .expect(403);
+  });
+  it('GET: [HOST]/blogger/users/blog/:blogId: should return code 404 ', async () => {
+    const users = await request(app.getHttpServer())
+      .get(`/blogger/users/blog/$23222222`)
+      .auth(accessTokenUser1, { type: 'bearer' })
+      .expect(404);
   });
   it('GET: [HOST]/blogger/users/blog/:blogId: should return code 200 and array with 2 elements (banned users) with default paginator', async () => {
     const users = await request(app.getHttpServer())
