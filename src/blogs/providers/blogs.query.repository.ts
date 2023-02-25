@@ -69,7 +69,7 @@ export class BlogsQueryRepository {
     const blogView = this.getBlogViewModel(blog);
     const banInfo = {
       isBanned: blog.isBanned,
-      banDate: blog.banDate?.toString() || null,
+      banDate: blog.banDate?.toISOString() || null,
     };
     const blogOwnerInfo = {
       userId: blog.blogOwnerId,
