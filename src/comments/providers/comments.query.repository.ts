@@ -92,10 +92,7 @@ export class CommentsQueryRepository {
     return { totalCount, comments };
   }
 
-  getCommentViewModel(
-    comment: CommentDocument,
-    userId?: string,
-  ): CommentViewModel {
+  getLikesInfo(comment: CommentDocument, userId?: string) {
     let likesCount = 0;
     let dislikesCount = 0;
     let myStatus: LikeStatusType = 'None';
@@ -112,24 +109,17 @@ export class CommentsQueryRepository {
       }
     }
     return {
-      id: comment._id.toString(),
-      content: comment.content,
-      commentatorInfo: {
-        userId: comment.commentatorId,
-        userLogin: comment.commentatorLogin,
-      },
-      createdAt: comment.createdAt.toISOString(),
-      likesInfo: {
-        likesCount,
-        dislikesCount,
-        myStatus,
-      },
+      likesCount,
+      dislikesCount,
+      myStatus,
     };
   }
 
-  getBloggerCommentViewModel(
+  getCommentViewModel(
     comment: CommentDocument,
-  ): BloggerCommentViewModel {
+    userId?: string,
+  ): CommentViewModel {
+    const likesInfo = this.getLikesInfo(comment, userId);
     return {
       id: comment._id.toString(),
       content: comment.content,
@@ -138,6 +128,23 @@ export class CommentsQueryRepository {
         userLogin: comment.commentatorLogin,
       },
       createdAt: comment.createdAt.toISOString(),
+      likesInfo,
+    };
+  }
+
+  getBloggerCommentViewModel(
+    comment: CommentDocument,
+  ): BloggerCommentViewModel {
+    const likesInfo = this.getLikesInfo(comment);
+    return {
+      id: comment._id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.commentatorId,
+        userLogin: comment.commentatorLogin,
+      },
+      createdAt: comment.createdAt.toISOString(),
+      likesInfo,
       postInfo: {
         id: comment.postId,
         title: comment.postTitle,
